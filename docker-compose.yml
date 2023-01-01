@@ -1,0 +1,7 @@
+version: "2"
+
+services:
+  nodejs-react-pi-clock:
+    build: ./nodejs-react-pi-clock
+    ports:
+      - "80:80"
