@@ -4,4 +4,4 @@ services:
   nodejs-react-pi-clock:
     build: ./nodejs-react-pi-clock
     ports:
-      - "80:80"
+      - "3000:80"
