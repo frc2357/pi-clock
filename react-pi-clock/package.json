@@ -14,7 +14,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "copy_to_express": "copyfiles \"./build/**/*\" ../nodejs-react-pi-clock/public",
+    "copy_to_express": "copyfiles \"./build/**/*\" ../nodejs-react-pi-clock/react-app/",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
