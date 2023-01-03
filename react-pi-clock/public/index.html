@@ -36,5 +36,91 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
+    <script src="timeclock-config.js"></script>
+
+    <script type="text/javascript">
+      window.gapiClient = {
+        discoveryDocs: [
+          "https://sheets.googleapis.com/$discovery/rest?version=v4",
+          "https://people.googleapis.com/$discovery/rest?version=v1",
+        ],
+        scopes: "https://www.googleapis.com/auth/spreadsheets profile",
+        gapiInited: false,
+        gisInited: false,
+        tokenClient: null,
+      };
+
+      window.onGApiClientInit = null;
+      window.onGApiClientSignIn = null;
+      window.onGApiClientSignOut = null;
+
+      window.gapiSignIn = () => {
+        window.gapiClient.tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw resp;
+          }
+          window.onGApiClientSignIn();
+        };
+
+        if (gapi.client.getToken() === null) {
+          window.gapiClient.tokenClient.requestAccessToken({
+            prompt: "consent",
+          });
+        } else {
+          window.gapiClient.tokenClient.requestAccessToken({ prompt: "" });
+        }
+      };
+
+      window.gapiSignOut = () => {
+        const token = gapi.client.getToken();
+        if (token !== null) {
+          google.accounts.oauth2.revoke(token.access_token);
+          gapi.client.setToken("");
+          window.onGApiClientSignOut();
+          return true;
+        }
+        return false;
+      };
+
+      function gapiLoaded() {
+        gapi.load("client", async () => {
+          await gapi.client.init({
+            apiKey: window.timeclockConfig.apiKey,
+            discoveryDocs: window.gapiClient.discoveryDocs,
+          });
+          window.gapiClient.gapiInited = true;
+          if (window.gapiClient.gisInited && window.onGApiClientInit) {
+            window.onGApiClientInit();
+          }
+        });
+      }
+
+      function gisLoaded() {
+        window.gapiClient.tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: window.timeclockConfig.clientId,
+          auto_select: true,
+          scope: window.gapiClient.scopes,
+          callback: "",
+        });
+        window.gapiClient.gisInited = true;
+        if (window.gapiClient.gapiInited && window.onGApiClientInit) {
+          window.onGApiClientInit();
+        }
+      }
+    </script>
+
+    <script
+      async
+      defer
+      src="https://apis.google.com/js/api.js"
+      onload="gapiLoaded()"
+    ></script>
+    <script
+      async
+      defer
+      src="https://accounts.google.com/gsi/client"
+      onload="gisLoaded()"
+    ></script>
   </body>
 </html>

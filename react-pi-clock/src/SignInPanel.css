@@ -1,0 +1,19 @@
+.SignInPanel {
+}
+
+.SignInPanel-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-family: "Helvetica Neue", sans-serif;
+  background-color: white;
+  border-radius: 2vmin;
+  padding-left: 5vmin;
+  padding-right: 5vmin;
+}
+
+.SignInPanel-button-icon {
+  padding-right: 2vmin;
+}

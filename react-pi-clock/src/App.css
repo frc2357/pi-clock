@@ -15,14 +15,19 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: 2rem;
   color: #ff8811;
   border-bottom: white solid 1px;
 }
 
 .App-body {
+  color: white;
   background-color: #202020;
   height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .App-footer {
