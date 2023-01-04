@@ -6,12 +6,12 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-family: "Helvetica Neue", sans-serif;
   background-color: white;
   border-radius: 2vmin;
-  padding-left: 5vmin;
-  padding-right: 5vmin;
+  padding-left: 3vmin;
+  padding-right: 3vmin;
 }
 
 .SignInPanel-button-icon {
