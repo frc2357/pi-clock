@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 
 const TIMESHEET_NAME = "Timesheet";
 const TIMESHEET_RANGE = "Timesheet!A2:C";
-const ROSTER_NAME = "Roster";
 const ROSTER_RANGE = "Roster!A2:C";
 const MAX_SHIFT_LENGTH_HOURS = 12;
 const MAX_SHIFT_LENGTH_MS = MAX_SHIFT_LENGTH_HOURS * 60 * 60 * 1000;
@@ -56,6 +55,40 @@ const getClockInTime = (whosClockedIn) => (userName) => {
   return timeIn;
 };
 
+const getRosterRow = (roster, userName) => {
+  return roster.find((row) => row[0] === userName);
+};
+
+const addRosterRow = async (userName, setRoster) => {
+  await fetchRoster(setRoster);
+
+  const totalHoursQuery = `=SUM(QUERY(Timesheet!A2:D, "SELECT D WHERE A = '${userName}'"))`;
+
+  let response;
+
+  try {
+    response = await window.gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      range: ROSTER_RANGE,
+      valueInputOption: "USER_ENTERED",
+      majorDimension: "ROWS",
+      values: [[userName, totalHoursQuery, ""]],
+    });
+  } catch (err) {
+    console.error("Error adding to roster:", err);
+    return false;
+  }
+
+  const result = response.result;
+  if (result.updates.updatedCells !== 3) {
+    console.error(
+      `Error adding to roster: ${result.updates.updatedCells} cells appended.`
+    );
+  }
+  fetchRoster(setRoster);
+  return true;
+};
+
 const fetchTimesheet = async (setWhosClockedIn) => {
   let response;
   try {
@@ -70,6 +103,23 @@ const fetchTimesheet = async (setWhosClockedIn) => {
 
   const rows = response.result?.values || [];
   setWhosClockedIn(parseWhosClockedIn(rows));
+  return rows;
+};
+
+const fetchRoster = async (setRoster) => {
+  let response;
+  try {
+    response = await window.gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      range: ROSTER_RANGE,
+    });
+  } catch (err) {
+    console.error("Error fetching roster:", err);
+    return false;
+  }
+
+  const rows = response.result?.values || [];
+  setRoster(rows);
   return rows;
 };
 
@@ -88,12 +138,14 @@ const fetchUserName = async (setUserName) => {
   const names = response.result.names;
   const primaryName = names.find((name) => name.metadata.primary);
   setUserName(primaryName.displayName);
-  return true;
+  return primaryName.displayName;
 };
 
-const clockIn = (userName, setWhosClockedIn) => async () => {
+const clockIn = (userName, setWhosClockedIn, setRoster) => async () => {
   const now = new Date();
   const timeString = now.toLocaleString();
+
+  await fetchRoster(setRoster);
 
   let response;
 
@@ -150,17 +202,29 @@ const clockOut = (userName, setWhosClockedIn) => async () => {
   }
 
   const result = response.result;
-  if (result.updatedCells !== 1) {
+  if (result.updatedCells !== 2) {
     console.error(`Error clocking out: ${result.updatedCells} cells updated.`);
   }
   fetchTimesheet(setWhosClockedIn);
   return true;
 };
 
+const initialFetch = async (setUserName, setWhosClockedIn, setRoster) => {
+  fetchTimesheet(setWhosClockedIn);
+  const userName = await fetchUserName(setUserName);
+  const rosterRows = await fetchRoster(setRoster);
+
+  // If this user isn't added to the roster, do that now.
+  if (!getRosterRow(rosterRows, userName)) {
+    addRosterRow(userName, setRoster);
+  }
+};
+
 const useGapi = () => {
   const [isGapiInited, setGapiInited] = useState(false);
   const [isGapiSignedIn, setGapiSignedIn] = useState(false);
   const [whosClockedIn, setWhosClockedIn] = useState(null);
+  const [roster, setRoster] = useState(null);
   const [userName, setUserName] = useState(null);
 
   useEffect(() => {
@@ -169,8 +233,7 @@ const useGapi = () => {
     };
     window.onGApiClientSignIn = () => {
       setGapiSignedIn(true);
-      fetchTimesheet(setWhosClockedIn);
-      fetchUserName(setUserName);
+      initialFetch(setUserName, setWhosClockedIn, setRoster);
     };
     window.onGApiClientSignOut = () => {
       setGapiSignedIn(false);
@@ -180,10 +243,11 @@ const useGapi = () => {
   return {
     isGapiInited,
     isGapiSignedIn,
+    roster,
     whosClockedIn,
     userName,
     getClockInTime: getClockInTime(whosClockedIn),
-    clockIn: clockIn(userName, setWhosClockedIn),
+    clockIn: clockIn(userName, setWhosClockedIn, setRoster),
     clockOut: clockOut(userName, setWhosClockedIn),
     gapiSignIn: window.gapiSignIn,
     gapiSignOut: window.gapiSignIn,
