@@ -10,21 +10,11 @@ console.log("Generating config from environment variables...");
 const clientId = getEnv("CLIENT_ID");
 const apiKey = getEnv("API_KEY");
 const spreadsheetId = getEnv("SPREADSHEET_ID");
-const timesheetName = getEnv("TIMESHEET_NAME");
-const timesheetRange = getEnv("TIMESHEET_RANGE");
-const rosterName = getEnv("ROSTER_NAME");
-const rosterRange = getEnv("ROSTER_RANGE");
-const maxShiftLengthHours = getEnv("MAX_SHIFT_LENGTH_HOURS");
 
 const timeclockConfig = {
   clientId,
   apiKey,
   spreadsheetId,
-  timesheetName,
-  timesheetRange,
-  rosterName,
-  rosterRange,
-  maxShiftLengthHours,
 };
 
 const fileBody = "window.timeclockConfig = " + JSON.stringify(timeclockConfig);

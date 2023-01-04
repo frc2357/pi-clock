@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 
-const MAX_SHIFT_LENGTH_MS =
-  Number.parseInt(window.timeclockConfig.maxShiftLengthHours) * 60 * 60 * 1000;
+const TIMESHEET_NAME = "Timesheet";
+const TIMESHEET_RANGE = "Timesheet!A2:C";
+const ROSTER_NAME = "Roster";
+const ROSTER_RANGE = "Roster!A2:C";
+const MAX_SHIFT_LENGTH_HOURS = 12;
+const MAX_SHIFT_LENGTH_MS = MAX_SHIFT_LENGTH_HOURS * 60 * 60 * 1000;
 
 const parseWhosClockedIn = (rows) => {
   const now = Date.now();
@@ -57,7 +61,7 @@ const fetchTimesheet = async (setWhosClockedIn) => {
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: window.timeclockConfig.spreadsheetId,
-      range: window.timeclockConfig.timesheetRange,
+      range: TIMESHEET_RANGE,
     });
   } catch (err) {
     console.error("Error fetching who's clocked in:", err);
@@ -96,7 +100,7 @@ const clockIn = (userName, setWhosClockedIn) => async () => {
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: window.timeclockConfig.spreadsheetId,
-      range: window.timeclockConfig.timesheetRange,
+      range: TIMESHEET_RANGE,
       valueInputOption: "USER_ENTERED",
       majorDimension: "ROWS",
       values: [[userName, timeString, ""]],
@@ -125,18 +129,20 @@ const clockOut = (userName, setWhosClockedIn) => async () => {
     return false;
   }
   const rowIndex = rows.indexOf(row) + 2; // +1 for 0 offset, and +1 for header
+  const timeIn = Date.parse(row[1]);
+  const durationHours = (now - timeIn) / 1000 / 60 / 60;
 
-  const cellName = `${window.timeclockConfig.timesheetName}!C${rowIndex}`;
+  const range = `${TIMESHEET_NAME}!C${rowIndex}:D${rowIndex}`;
 
   let response;
 
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId: window.timeclockConfig.spreadsheetId,
-      range: cellName,
+      range,
       valueInputOption: "USER_ENTERED",
       majorDimension: "ROWS",
-      values: [[timeString]],
+      values: [[timeString, durationHours]],
     });
   } catch (err) {
     console.error("Error clocking in:", err);
