@@ -1,5 +1,4 @@
 .SignOutPanel {
-  margin: 2vmin;
 }
 
 .SignOutPanel-button {
@@ -13,6 +12,7 @@
   border-radius: 1.25vmin;
   padding-left: 1.5vmin;
   padding-right: 1.5vmin;
+  margin-bottom: 2vmin;
 }
 
 .SignOutPanel-button-icon {
