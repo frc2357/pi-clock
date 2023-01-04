@@ -2,6 +2,7 @@ import "./App.css";
 import useGapi from "./hooks/useGapi";
 import Timeclock from "./Timeclock";
 import SignInPanel from "./SignInPanel";
+import SignOutPanel from "./SignOutPanel";
 
 function App() {
   const {
@@ -18,7 +19,8 @@ function App() {
 
   const isClockedIn = !!getClockInTime(userName);
 
-  let body;
+  let body = null;
+  let signOutPanel = null;
 
   if (isGapiInited) {
     if (isGapiSignedIn) {
@@ -26,7 +28,6 @@ function App() {
         body = (
           <Timeclock
             userName={userName}
-            gapiSignOut={gapiSignOut}
             getClockInTime={getClockInTime}
             isClockedIn={isClockedIn}
             clockIn={clockIn}
@@ -36,6 +37,8 @@ function App() {
       } else {
         body = <div>Loading...</div>;
       }
+
+      signOutPanel = <SignOutPanel gapiSignOut={gapiSignOut} />;
     } else {
       body = <SignInPanel gapiSignIn={gapiSignIn} />;
     }
@@ -53,7 +56,10 @@ function App() {
         />
         <h1 className="App-title">Timeclock 2357</h1>
       </header>
-      <div className="App-body">{body}</div>
+      <div className="App-body">
+        {body}
+        {signOutPanel}
+      </div>
       <footer className="App-footer">
         <a className="App-link" href="https://github.com/frc2357/pi-clock">
           Created by FIRST Robotics Team 2357 "System Meltdown"

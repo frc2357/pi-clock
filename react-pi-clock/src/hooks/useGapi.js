@@ -250,7 +250,7 @@ const useGapi = () => {
     clockIn: clockIn(userName, setWhosClockedIn, setRoster),
     clockOut: clockOut(userName, setWhosClockedIn),
     gapiSignIn: window.gapiSignIn,
-    gapiSignOut: window.gapiSignIn,
+    gapiSignOut: window.gapiSignOut,
   };
 };
 
