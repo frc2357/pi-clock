@@ -1,43 +1,46 @@
 .Timeclock-panel {
+  flex-grow: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 100%;
+  padding: 2vh;
 }
 
 .Timeclock-welcome {
-  font-size: 2rem;
+  font-size: 5vh;
+  margin: 0;
 }
 
 .Timeclock-clock {
   font-family: "Oswald", sans-serif;
   font-weight: bold;
-  font-size: 5rem;
+  font-size: 10vh;
 }
 
 .Timeclock-clock-in-since {
-  font-size: 1.5rem;
+  font-size: 4vh;
 }
 
 .Timeclock-button-clock-in {
+  flex-grow: 2;
   font-family: "Oswald", sans-serif;
   font-weight: bold;
-  font-size: 3rem;
+  font-size: 7vh;
   background-color: #47ff44;
   border-radius: 3vmin;
   border-color: white;
   padding: 3vmin;
-  margin: 10vmin;
+  margin: 1vh;
 }
 
 .Timeclock-button-clock-out {
   font-family: "Oswald", sans-serif;
   font-weight: bold;
-  font-size: 3rem;
+  font-size: 7vh;
   background-color: #ff8811;
   border-radius: 3vmin;
   border-color: white;
   padding: 3vmin;
-  margin: 10vmin;
+  margin: 1vh;
 }
