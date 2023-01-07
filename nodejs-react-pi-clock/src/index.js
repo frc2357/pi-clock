@@ -1,6 +1,9 @@
 import express from "express";
+import generateConfig from "./generate-config.js";
 
 const PORT = 80;
+
+generateConfig();
 
 const app = express();
 

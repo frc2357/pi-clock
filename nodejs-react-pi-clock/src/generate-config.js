@@ -5,28 +5,6 @@ import fs from "fs";
 
 const CONFIG_FILE_PATH = "./react-app/build/timeclock-config.js";
 
-console.log("Generating config from environment variables...");
-
-const clientId = getEnv("CLIENT_ID");
-const apiKey = getEnv("API_KEY");
-const spreadsheetId = getEnv("SPREADSHEET_ID");
-
-const timeclockConfig = {
-  clientId,
-  apiKey,
-  spreadsheetId,
-};
-
-const fileBody = "window.timeclockConfig = " + JSON.stringify(timeclockConfig);
-
-try {
-  fs.writeFileSync(CONFIG_FILE_PATH, fileBody);
-} catch (err) {
-  console.error(err);
-}
-
-console.log("complete!");
-
 function getEnv(envVarName) {
   const value = process.env[envVarName];
 
@@ -36,3 +14,30 @@ function getEnv(envVarName) {
 
   return value;
 }
+
+function generateConfig() {
+  console.log("Generating config from environment variables...");
+
+  const clientId = getEnv("CLIENT_ID");
+  const apiKey = getEnv("API_KEY");
+  const spreadsheetId = getEnv("SPREADSHEET_ID");
+
+  const timeclockConfig = {
+    clientId,
+    apiKey,
+    spreadsheetId,
+  };
+
+  const fileBody =
+    "window.timeclockConfig = " + JSON.stringify(timeclockConfig);
+
+  try {
+    fs.writeFileSync(CONFIG_FILE_PATH, fileBody);
+  } catch (err) {
+    console.error(err);
+  }
+
+  console.log("complete!");
+}
+
+export default generateConfig;
