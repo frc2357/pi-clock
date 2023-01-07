@@ -4,4 +4,9 @@ services:
   nodejs-react-pi-clock:
     build: ./nodejs-react-pi-clock
     ports:
-      - "80:80"
+      - 80:80
+
+  python-nfc-pi-clock:
+    build: ./python-nfc-pi-clock
+    ports:
+      - 4000:4000
