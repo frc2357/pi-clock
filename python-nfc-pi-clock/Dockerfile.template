@@ -4,7 +4,7 @@ FROM balenalib/%%BALENA_MACHINE_NAME%%-python:3-stretch-run
 
 # use `install_packages` if you need to install dependencies,
 # for instance if you need git, just uncomment the line below.
-RUN install_packages build-essential bzip2 libnfc-dev
+RUN install_packages build-essential bzip2 libnfc-dev tzdata
 
 # Set our working directory
 WORKDIR /usr/src/app
@@ -21,10 +21,12 @@ COPY . ./
 COPY config/libnfc.conf /etc/nfc/libnfc.conf
 
 # Build the nfcutils used to read NFC cards
-RUN pushd nfc
-RUN make
-RUN make install
-RUN popd
+RUN bash -xc "\
+pushd ./nfc; \
+make; \
+make install; \
+popd; \
+"
 
 # main.py will run when container starts up on the device
 CMD ["python","-u","src/app.py"]
