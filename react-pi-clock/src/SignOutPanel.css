@@ -1,5 +1,7 @@
 .SignOutPanel {
   padding: 1vh;
+  display: flex;
+  flex-direction: row;
 }
 
 .SignOutPanel-button {
@@ -8,13 +10,13 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-size: 2.5vh;
+  font-size: 2vh;
   font-family: "Helvetica Neue", sans-serif;
   background-color: white;
   border-radius: 1.25vmin;
-  padding-left: 1.5vmin;
-  padding-right: 1.5vmin;
-  margin-bottom: 2vmin;
+  margin-right: 1vmin;
+  width: 18vmin;
+  height: 10vmin;
 }
 
 .SignOutPanel-button-icon {

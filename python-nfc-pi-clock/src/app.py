@@ -10,14 +10,16 @@ nfcPoll.nfc_open()
 
 currentNfcId = None
 
-def print_date_time():
-    currentNfcId = nfcPoll.nfc_poll()
+nfcData = { "nfc_tag_id": None };
+
+def scan_nfc():
+    nfcData["nfc_tag_id"] = nfcPoll.nfc_poll()
     if currentNfcId != None:
         timeStr = time.strftime("%I:%M:%S %p", time.localtime())
-        print("{0} {1}".format(timeStr, currentNfcId))
+        print("{0} {1}".format(timeStr, nfcData["nfc_tag_id"]))
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=print_date_time, trigger="interval", seconds=1)
+scheduler.add_job(func=scan_nfc, trigger="interval", seconds=1)
 scheduler.start()
 
 # Shut down the scheduler when exiting the app
@@ -27,8 +29,7 @@ app = Flask(__name__)
 
 @app.route('/nfc_tag_id')
 def nfc_tag_id_endpoint():
-    data = {"nfc_tag_id": currentNfcId}
-    return json.dumps(data)
+    return json.dumps(nfcData)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000)

@@ -38,7 +38,7 @@ function App() {
         body = <div>Loading...</div>;
       }
 
-      signOutPanel = <SignOutPanel gapiSignOut={gapiSignOut} />;
+      signOutPanel = <SignOutPanel gapiSignOut={(gapiSignOut, userName)} />;
     } else {
       body = <SignInPanel gapiSignIn={gapiSignIn} />;
     }

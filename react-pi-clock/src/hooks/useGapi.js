@@ -56,6 +56,9 @@ const getClockInTime = (whosClockedIn) => (userName) => {
 };
 
 const getRosterRow = (roster, userName) => {
+  if (!roster || !userName) {
+    return [];
+  }
   return roster.find((row) => row[0] === userName);
 };
 

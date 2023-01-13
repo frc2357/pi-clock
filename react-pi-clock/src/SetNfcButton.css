@@ -1,0 +1,25 @@
+.SetNfcButton-button {
+  flex-grow: 1;
+  background-color: #404040;
+  color: white;
+  border-radius: 1.25vmin;
+  width: 13vmin;
+  height: 10vmin;
+}
+
+.SetNfcButton-icon {
+  font-size: 4vmin;
+  margin: 0;
+}
+
+.SetNfcButton-text {
+  font-size: 2vh;
+  font-family: "Helvetica Neue", sans-serif;
+  margin: 0;
+}
+
+.SetNfcButton-loading {
+  width: 60%;
+  height: 60%;
+  margin: 0;
+}
