@@ -8,3 +8,6 @@ Werkzeug==2.0.3
 zipp==3.6.0
 apscheduler==3.9.1.post1
 smbus==1.1.post2
+google-api-python-client==2.52.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==0.8.0
