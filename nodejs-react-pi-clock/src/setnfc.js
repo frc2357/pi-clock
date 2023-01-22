@@ -1,9 +1,9 @@
 import fetch from "node-fetch";
 
-const API_URL = "http://python-nfc-pi-clock:4000/nfc_tag_id";
+const API_URL = "http://python-nfc-pi-clock:4000/nfc_tag_assign";
 
 const assignNFC = async (userName) => {
-  response = await fetch(url, {
+  response = await fetch(API_URL, {
     method: "POST",
     headers: {
       Accept: "application/json",

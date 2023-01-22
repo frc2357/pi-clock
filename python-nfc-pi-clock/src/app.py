@@ -63,11 +63,6 @@ atexit.register(lambda: scheduler.shutdown())
 
 app = Flask(__name__)
 
-@app.route('/nfc_tag_id')
-def nfc_tag_id_endpoint():
-    nfcData = { "nfc_tag_id": None }
-    return json.dumps(nfcData)
-
 @app.route('/nfc_tag_assign', methods=['POST'])
 def nfc_tag_assign():
     request_data = request.get_json()

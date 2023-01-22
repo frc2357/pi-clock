@@ -7,9 +7,7 @@ const SignOutPanel = ({ gapiSignOut, userName, nfcId }) => {
   };
 
   const nfcButton =
-    !nfcId || nfcId.length === 0 ? (
-      <SetNfcButton userName={userName} nfcId={nfcId} />
-    ) : null;
+    !nfcId || nfcId.length === 0 ? <SetNfcButton userName={userName} /> : null;
 
   return (
     <div className="SignOutPanel">
