@@ -20,13 +20,8 @@ const fetchSetNfc = async (setSettingNfc, setComplete, setError, userName) => {
     setSettingNfc(false);
 
     if (!response.ok) {
-      throw Error("NFC set failed");
-    }
-
-    const responseJson = await response.json();
-
-    if (responseJson.error) {
-      throw Error("NFC set error: " + responseJson.error);
+      const responseJson = await response.json();
+      throw Error(responseJson.error);
     }
 
     setComplete(true);

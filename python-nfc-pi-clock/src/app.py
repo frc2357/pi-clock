@@ -68,5 +68,11 @@ def nfc_tag_id_endpoint():
     nfcData = { "nfc_tag_id": None }
     return json.dumps(nfcData)
 
+@app.route('/nfc_tag_assign', methods=['POST'])
+def nfc_tag_assign():
+    request_data = request.get_json()
+    print(request_data)
+    return json.dumps({'success': False, 'message': 'Not Implemented'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000)
