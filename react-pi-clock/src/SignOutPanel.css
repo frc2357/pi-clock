@@ -15,8 +15,8 @@
   background-color: white;
   border-radius: 1.25vmin;
   margin-right: 1vmin;
-  width: 18vmin;
-  height: 10vmin;
+  min-width: 18vw;
+  min-height: 5vh;
 }
 
 .SignOutPanel-button-icon {

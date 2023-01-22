@@ -15,11 +15,11 @@
 .Timeclock-clock {
   font-family: "Oswald", sans-serif;
   font-weight: bold;
-  font-size: 10vh;
+  font-size: 8vh;
 }
 
 .Timeclock-clock-in-since {
-  font-size: 4vh;
+  font-size: 3vh;
 }
 
 .Timeclock-button-clock-in {
