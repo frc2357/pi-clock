@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 const API_URL = "http://python-nfc-pi-clock:4000/nfc_tag_assign";
 
 const assignNFC = async (userName) => {
-  response = await fetch(API_URL, {
+  const response = await fetch(API_URL, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -18,14 +18,19 @@ const setnfc = async (req, res) => {
   const { userName } = req.body;
 
   console.log('setting nfc for "' + userName + "'");
-  const { success, message } = await assignNFC(userName);
-  console.log("success: ", success, ", message: ", message);
+  let response;
+  try {
+    response = await assignNFC(userName);
 
-  if (success) {
-    res.success({});
-  } else {
-    res.status(400);
-    res.send({ error: message });
+    if (response.success) {
+      res.success({});
+    } else {
+      res.status(400);
+      res.send({ error: response.message });
+    }
+  } catch (err) {
+    res.status(500);
+    res.send({ error: response.message });
   }
 };
 
