@@ -5,11 +5,16 @@ import os.path
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from flask import json
 
 SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]
 TIMESHEET_NAME = "Timesheet"
 TIMESHEET_RANGE = "Timesheet!A2:C"
 ROSTER_RANGE = "Roster!A2:C"
+
+def roster_range_for_row(rowIndex):
+    spreadsheet_row = rowIndex + 2
+    return f"Roster!A{spreadsheet_row}:C"
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
@@ -59,16 +64,24 @@ class Sheets:
         try:
             print(f"set_nfc {user_name}, {nfc_id}")
 
-            #result = self.sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=ROSTER_RANGE).execute()
-            #values = result.get('values', [])
+            row = self.find_roster_row(user_name)
 
-            #if not values:
-            #    print('No roster data found.')
-            #    return
+            if len(row) >= 3:
+                raise ValueError("NFC tag already exists")
 
-            #print('Name, Hours')
-            #for row in values:
-            #    print('%s, %s' % (row[0], row[1]))
+            row.append(nfc_id)
+            rowIndex = self.roster.index(row)
+
+            body = { "values": [row] }
+
+            result = self.sheet.values().update(
+                spreadsheetId=SPREADSHEET_ID,
+                range=roster_range_for_row(rowIndex),
+                valueInputOption="USER_ENTERED",
+                body=body,
+            ).execute()
+
+            print(f"{result.get('updatedCells')} cells updated.")
 
         except HttpError as err:
             print(err)
