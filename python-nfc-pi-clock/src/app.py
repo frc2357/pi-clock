@@ -26,33 +26,48 @@ class LocalState:
     def update_roster(self):
         self.sheets.fetch_roster()
 
+    def update_timesheet(self):
+        self.sheets.fetch_timesheet()
+
     def update_nfc(self):
         prev_nfc_tag_id = self.nfc_tag_id
         self.nfc_tag_id = self.nfc_poll.nfc_poll()
 
         if self.nfc_hold_start != None:
-            if self.nfc_hold_start + self.NFC_HOLD_TIME < datetime.now():
-                self.nfc_timeout()
-                return
-            else:
-                if prev_nfc_tag_id == None and self.nfc_tag_id != None:
-                    self.nfc_assign_complete()
-                    return
+            self.handle_register_nfc(prev_nfc_tag_id, self.nfc_tag_id)
 
         if prev_nfc_tag_id != self.nfc_tag_id and self.nfc_tag_id != None:
-            # TODO: Lookup name and show that instead
-            # TODO: See if this is a clock in or clock out
-            self.clock_in(self.nfc_tag_id)
+            self.handle_clock_in_out(self.nfc_tag_id)
 
+    def handle_register_nfc(self, prev_nfc_tag_id, nfc_tag_id):
+        if self.nfc_hold_start + self.NFC_HOLD_TIME < datetime.now():
+            self.nfc_timeout()
+        else:
+            if prev_nfc_tag_id == None and nfc_tag_id != None:
+                self.nfc_assign_complete()
+
+    def handle_clock_in_out(self, nfc_tag_id):
+        user_name = self.sheets.find_name_by_nfc(nfc_tag_id)
+
+        if user_name != None:
+            clock_in_row = self.sheets.find_timesheet_clocked_in_row(user_name)
+
+            if clock_in_row:
+                self.clock_out(clock_in_row)
+            else:
+                self.clock_in(user_name)
 
     def update_display(self):
         self.display.update_display()
 
-    def clock_in(self, nfc_tag_id, now = datetime.now()):
-        self.display.clock_in(nfc_tag_id, now)
+    def clock_in(self, user_name, now = datetime.now()):
+        self.sheets.clock_in(user_name, now)
+        self.display.clock_in(user_name, now)
 
-    def clock_out(self, nfc_tag_id, now = datetime.now()):
-        self.display.clock_out(nfc_tag_id, now)
+    def clock_out(self, clock_in_row, now = datetime.now()):
+        user_name = clock_in_row[0]
+        self.sheets.clock_out(clock_in_row, now)
+        self.display.clock_out(user_name, now)
 
     def nfc_assign_start(self, user_name):
         self.nfc_user_name = user_name
@@ -81,14 +96,19 @@ def update_display():
 def update_roster():
     local_state.update_roster()
 
+def update_timesheet():
+    local_state.update_timesheet()
+
 write_credentials_json()
 local_state.sheets.auth()
 local_state.update_roster()
+local_state.update_timesheet()
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=update_nfc, trigger="interval", seconds=1)
 scheduler.add_job(func=update_display, trigger="interval", seconds=1)
 scheduler.add_job(func=update_roster, trigger="interval", hours=1)
+scheduler.add_job(func=update_timesheet, trigger="interval", minutes=30)
 scheduler.start()
 
 # Shut down the scheduler when exiting the app
