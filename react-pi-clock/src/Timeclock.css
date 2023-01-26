@@ -32,6 +32,8 @@
   border-color: white;
   padding: 3vmin;
   margin: 1vh;
+  max-height: 30vh;
+  max-width: 30vw;
 }
 
 .Timeclock-button-clock-out {
@@ -43,4 +45,6 @@
   border-color: white;
   padding: 3vmin;
   margin: 1vh;
+  max-height: 30vh;
+  max-width: 30vw;
 }

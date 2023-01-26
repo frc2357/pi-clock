@@ -46,6 +46,14 @@ const getClockInEntryRow = (rows) => (userName) => {
   });
 };
 
+const isNfcSet = (roster, userName) => {
+  const row = getRosterRow(roster, userName);
+  if (!row) {
+    return false;
+  }
+  return row.length === 3;
+};
+
 const getClockInTime = (whosClockedIn) => (userName) => {
   const row = getClockInEntryRow(whosClockedIn)(userName);
   if (!row) {
@@ -246,6 +254,7 @@ const useGapi = () => {
   return {
     isGapiInited,
     isGapiSignedIn,
+    isNfcSet: isNfcSet(roster, userName),
     roster,
     whosClockedIn,
     userName,
