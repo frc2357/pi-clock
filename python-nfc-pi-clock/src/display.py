@@ -17,6 +17,14 @@ class Display:
         self.display = lcd()
         self.display_idle()
 
+    def scanning(self):
+        self.set_event([
+            "".ljust(self.COLUMNS, " "),
+            "SCANNING...".center(self.COLUMNS, " "),
+            "".ljust(self.COLUMNS, " "),
+            "".ljust(self.COLUMNS, " "),
+        ])
+
     def clock_in(self, name, when):
         self.set_event([
             "CLOCK IN".center(self.COLUMNS, " "),
@@ -33,7 +41,7 @@ class Display:
             when.strftime("at %I:%M:%S").center(self.COLUMNS, " "),
         ])
 
-    def nfc_scan(self, user_name):
+    def nfc_scan_register(self, user_name):
         self.set_event([
             "".ljust(self.COLUMNS, " "),
             "Scan NFC Card for".center(self.COLUMNS),

@@ -156,7 +156,6 @@ class Sheets:
             ).execute()
 
             print(f"{(result.get('updates').get('updatedCells'))} cells appended.")
-            self.fetch_timesheet()
 
         except HttpError as err:
             print(err)
@@ -180,7 +179,6 @@ class Sheets:
             ).execute()
 
             print(f"{result.get('updatedCells')} cells updated.")
-            self.fetch_timesheet()
 
         except HttpError as err:
             print(err)
