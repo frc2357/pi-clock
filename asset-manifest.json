@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/pi-clock/static/css/main.f3f61151.css",
-    "main.js": "/pi-clock/static/js/main.97ac8b42.js",
+    "main.js": "/pi-clock/static/js/main.2f891508.js",
     "index.html": "/pi-clock/index.html",
     "main.f3f61151.css.map": "/pi-clock/static/css/main.f3f61151.css.map",
-    "main.97ac8b42.js.map": "/pi-clock/static/js/main.97ac8b42.js.map"
+    "main.2f891508.js.map": "/pi-clock/static/js/main.2f891508.js.map"
   },
   "entrypoints": [
     "static/css/main.f3f61151.css",
-    "static/js/main.97ac8b42.js"
+    "static/js/main.2f891508.js"
   ]
 }
