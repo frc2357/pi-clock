@@ -58,7 +58,7 @@ function App() {
       <header className="App-header">
         <img
           className="App-logo"
-          src="/FRC2357 Logo for Dark Background.svg"
+          src="FRC2357 Logo for Dark Background.svg"
           alt="FRC2357 Logo"
         />
         <h1 className="App-title">Timeclock 2357</h1>

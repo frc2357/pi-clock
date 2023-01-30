@@ -1,6 +1,7 @@
 {
   "name": "react-pi-clock",
   "version": "0.1.0",
+  "homepage": "https://frc2357.github.io/pi-clock",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -12,9 +13,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "rimraf ../nodejs-react-pi-clock/react-app/build && npm run build-react-app && npm run copy-to-express",
+    "build": "npm run build-react-app",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "build-react-app": "react-scripts build",
-    "copy-to-express": "copyfiles \"./build/**/*\" ../nodejs-react-pi-clock/react-app/",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
+    "gh-pages": "^5.0.0",
     "rimraf": "^4.1.1"
   }
 }

@@ -10,7 +10,7 @@ const SignInPanel = ({ gapiSignIn }) => {
       <button className="SignInPanel-button" onClick={onClick}>
         <img
           className="SignInPanel-button-icon"
-          src="/google-icon.svg"
+          src="google-icon.svg"
           alt="Google logo"
         />
         <p>Sign in with Google</p>

@@ -1,14 +1,7 @@
 version: "2"
 
 services:
-  nodejs-react-pi-clock:
-    build: ./nodejs-react-pi-clock
-    ports:
-      - 80:80
-
   python-nfc-pi-clock:
     build: ./python-nfc-pi-clock
-    ports:
-      - 4000:4000
     devices:
       - "/dev/i2c-1:/dev/i2c-1"

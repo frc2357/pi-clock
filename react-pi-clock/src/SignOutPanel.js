@@ -13,7 +13,7 @@ const SignOutPanel = ({ gapiSignOut, userName, isNfcSet }) => {
       <button className="SignOutPanel-button" onClick={onClick}>
         <img
           className="SignOutPanel-button-icon"
-          src="/google-icon.svg"
+          src="google-icon.svg"
           alt="Google logo"
         />
         <p>Sign out</p>
