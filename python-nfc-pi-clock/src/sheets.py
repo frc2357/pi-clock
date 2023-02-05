@@ -160,12 +160,12 @@ class Sheets:
         except HttpError as err:
             print(err)
 
-    def clock_out(self, clock_in_row, clock_out_time):
+    def clock_out(self, clock_in_row, when):
         try:
             clock_in_time = datetime.strptime(clock_in_row[1], DATETIME_FORMAT)
-            duration = clock_out_time - clock_in_time
+            duration = when - clock_in_time
 
-            clock_in_row.append(clock_out_time.strftime(DATETIME_FORMAT))
+            clock_in_row.append(when.strftime(DATETIME_FORMAT))
             clock_in_row.append(duration.seconds / 60 / 60)
 
             rowIndex = self.timesheet.index(clock_in_row)

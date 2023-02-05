@@ -25,6 +25,14 @@ class Display:
             "".ljust(self.COLUMNS, " "),
         ])
 
+    def unrecognized_nfc(self, nfc_id):
+        self.set_event([
+            "UNRECOGNIZED NFC".ljust(self.COLUMNS, " "),
+            "".ljust(self.COLUMNS, " "),
+            nfc_id.center(self.COLUMNS, " "),
+            "".ljust(self.COLUMNS, " "),
+        ])
+
     def clock_in(self, name, when):
         self.set_event([
             "CLOCK IN".center(self.COLUMNS, " "),
@@ -39,33 +47,6 @@ class Display:
             "".ljust(self.COLUMNS, " "),
             name.center(self.COLUMNS, " "),
             when.strftime("at %I:%M:%S").center(self.COLUMNS, " "),
-        ])
-
-    def nfc_scan_register(self, user_name):
-        self.set_event([
-            "".ljust(self.COLUMNS, " "),
-            "Scan NFC Card for".center(self.COLUMNS),
-            user_name.center(self.COLUMNS, " "),
-            "".ljust(self.COLUMNS, " "),
-        ])
-        self.hold_display = True
-
-    def nfc_set(self, user_name):
-        self.hold_display = False
-        self.set_event([
-            "".ljust(self.COLUMNS, " "),
-            "NFC card assigned to".center(self.COLUMNS),
-            user_name.center(self.COLUMNS, " "),
-            "".ljust(self.COLUMNS, " "),
-        ])
-
-    def nfc_timeout(self):
-        self.hold_display = False
-        self.set_event([
-            "".ljust(self.COLUMNS, " "),
-            "NFC card set".center(self.COLUMNS),
-            "timed out".center(self.COLUMNS),
-            "".ljust(self.COLUMNS, " "),
         ])
 
     def display_idle(self):
