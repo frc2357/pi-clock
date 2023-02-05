@@ -8,7 +8,6 @@ function App() {
   const {
     isGapiInited,
     isGapiSignedIn,
-    isNfcSet,
     gapiSignIn,
     gapiSignOut,
     whosClockedIn,
@@ -39,13 +38,7 @@ function App() {
         body = <div>Loading...</div>;
       }
 
-      signOutPanel = (
-        <SignOutPanel
-          gapiSignOut={gapiSignOut}
-          userName={userName}
-          isNfcSet={isNfcSet}
-        />
-      );
+      signOutPanel = <SignOutPanel gapiSignOut={gapiSignOut} />;
     } else {
       body = <SignInPanel gapiSignIn={gapiSignIn} />;
     }

@@ -1,12 +1,9 @@
-import SetNfcButton from "./SetNfcButton";
 import "./SignOutPanel.css";
 
-const SignOutPanel = ({ gapiSignOut, userName, isNfcSet }) => {
+const SignOutPanel = ({ gapiSignOut }) => {
   const onClick = () => {
     gapiSignOut();
   };
-
-  const nfcButton = !isNfcSet ? <SetNfcButton userName={userName} /> : null;
 
   return (
     <div className="SignOutPanel">
@@ -18,7 +15,6 @@ const SignOutPanel = ({ gapiSignOut, userName, isNfcSet }) => {
         />
         <p>Sign out</p>
       </button>
-      {nfcButton}
     </div>
   );
 };
