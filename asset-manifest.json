@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/pi-clock/static/css/main.34f9363d.css",
-    "main.js": "/pi-clock/static/js/main.9bc2c6f9.js",
+    "main.css": "/pi-clock/static/css/main.2e875112.css",
+    "main.js": "/pi-clock/static/js/main.f0553a22.js",
     "index.html": "/pi-clock/index.html",
-    "main.34f9363d.css.map": "/pi-clock/static/css/main.34f9363d.css.map",
-    "main.9bc2c6f9.js.map": "/pi-clock/static/js/main.9bc2c6f9.js.map"
+    "main.2e875112.css.map": "/pi-clock/static/css/main.2e875112.css.map",
+    "main.f0553a22.js.map": "/pi-clock/static/js/main.f0553a22.js.map"
   },
   "entrypoints": [
-    "static/css/main.34f9363d.css",
-    "static/js/main.9bc2c6f9.js"
+    "static/css/main.2e875112.css",
+    "static/js/main.f0553a22.js"
   ]
 }
