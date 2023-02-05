@@ -6,6 +6,10 @@ const ROSTER_RANGE = "Roster!A2:C";
 const MAX_SHIFT_LENGTH_HOURS = 12;
 const MAX_SHIFT_LENGTH_MS = MAX_SHIFT_LENGTH_HOURS * 60 * 60 * 1000;
 
+const CLIENT_KEY = process.env.REACT_APP_CLIENT_KEY;
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
+const SHEET_ID = process.env.REACT_APP_SHEET_ID;
+
 const parseWhosClockedIn = (rows) => {
   const now = Date.now();
 
@@ -79,7 +83,7 @@ const addRosterRow = async (userName, setRoster) => {
 
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      spreadsheetId: SHEET_ID,
       range: ROSTER_RANGE,
       valueInputOption: "USER_ENTERED",
       majorDimension: "ROWS",
@@ -104,7 +108,7 @@ const fetchTimesheet = async (setWhosClockedIn) => {
   let response;
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      spreadsheetId: SHEET_ID,
       range: TIMESHEET_RANGE,
     });
   } catch (err) {
@@ -121,7 +125,7 @@ const fetchRoster = async (setRoster) => {
   let response;
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      spreadsheetId: SHEET_ID,
       range: ROSTER_RANGE,
     });
   } catch (err) {
@@ -162,7 +166,7 @@ const clockIn = (userName, setWhosClockedIn, setRoster) => async () => {
 
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      spreadsheetId: SHEET_ID,
       range: TIMESHEET_RANGE,
       valueInputOption: "USER_ENTERED",
       majorDimension: "ROWS",
@@ -201,7 +205,7 @@ const clockOut = (userName, setWhosClockedIn) => async () => {
 
   try {
     response = await window.gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId: window.timeclockConfig.spreadsheetId,
+      spreadsheetId: SHEET_ID,
       range,
       valueInputOption: "USER_ENTERED",
       majorDimension: "ROWS",
@@ -228,6 +232,75 @@ const initialFetch = async (setUserName, setWhosClockedIn, setRoster) => {
   // If this user isn't added to the roster, do that now.
   if (!getRosterRow(rosterRows, userName)) {
     addRosterRow(userName, setRoster);
+  }
+};
+
+const gapiClient = {
+  discoveryDocs: [
+    "https://sheets.googleapis.com/$discovery/rest?version=v4",
+    "https://people.googleapis.com/$discovery/rest?version=v1",
+  ],
+  scopes: "https://www.googleapis.com/auth/spreadsheets profile",
+  gapiInited: false,
+  gisInited: false,
+  tokenClient: null,
+};
+
+window.onGApiClientInit = null;
+window.onGApiClientSignIn = null;
+window.onGApiClientSignOut = null;
+
+const gapiSignIn = () => {
+  gapiClient.tokenClient.callback = async (resp) => {
+    if (resp.error !== undefined) {
+      throw resp;
+    }
+    window.onGApiClientSignIn();
+  };
+
+  if (window.gapi.client.getToken() === null) {
+    gapiClient.tokenClient.requestAccessToken({
+      prompt: "consent",
+    });
+  } else {
+    gapiClient.tokenClient.requestAccessToken({ prompt: "" });
+  }
+};
+
+const gapiSignOut = () => {
+  const token = window.gapi.client.getToken();
+  if (token !== null) {
+    window.google.accounts.oauth2.revoke(token.access_token);
+    window.gapi.client.setToken("");
+    window.onGApiClientSignOut();
+    return true;
+  }
+  return false;
+};
+
+const gapiInit = () => {
+  window.gapi.load("client", async () => {
+    await window.gapi.client.init({
+      apiKey: CLIENT_KEY,
+      discoveryDocs: gapiClient.discoveryDocs,
+    });
+    gapiClient.gapiInited = true;
+    if (gapiClient.gisInited && window.onGApiClientInit) {
+      window.onGApiClientInit();
+    }
+  });
+};
+
+const gisInit = () => {
+  gapiClient.tokenClient = window.google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    auto_select: true,
+    scope: gapiClient.scopes,
+    callback: "",
+  });
+  gapiClient.gisInited = true;
+  if (gapiClient.gapiInited && window.onGApiClientInit) {
+    window.onGApiClientInit();
   }
 };
 
@@ -261,9 +334,12 @@ const useGapi = () => {
     getClockInTime: getClockInTime(whosClockedIn),
     clockIn: clockIn(userName, setWhosClockedIn, setRoster),
     clockOut: clockOut(userName, setWhosClockedIn),
-    gapiSignIn: window.gapiSignIn,
-    gapiSignOut: window.gapiSignOut,
+    gapiSignIn,
+    gapiSignOut,
   };
 };
+
+gapiInit();
+gisInit();
 
 export default useGapi;
