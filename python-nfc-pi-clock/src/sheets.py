@@ -102,7 +102,6 @@ class Sheets:
             return None
 
         for row in self.roster:
-            print(row)
             if len(row) >= 3 and row[2] == nfc_id:
                 return row
 
@@ -116,33 +115,6 @@ class Sheets:
 
         return None
 
-    def set_nfc(self, user_name, nfc_id):
-        try:
-            print(f"set_nfc {user_name}, {nfc_id}")
-
-            row = self.find_roster_row(user_name)
-
-            if len(row) >= 3:
-                raise ValueError("NFC tag already exists")
-
-            row.append(nfc_id)
-            rowIndex = self.roster.index(row)
-
-            body = { "values": [row] }
-
-            result = self.sheet.values().update(
-                spreadsheetId=SPREADSHEET_ID,
-                range=roster_range_for_row(rowIndex),
-                valueInputOption="USER_ENTERED",
-                body=body,
-            ).execute()
-
-            print(f"{result.get('updatedCells')} cells updated.")
-            self.fetch_roster()
-
-        except HttpError as err:
-            print(err)
-
     def clock_in(self, user_name, when):
         try:
             row = [ user_name, when.strftime(DATETIME_FORMAT) ]
@@ -154,8 +126,6 @@ class Sheets:
                 valueInputOption="USER_ENTERED",
                 body=body,
             ).execute()
-
-            print(f"{(result.get('updates').get('updatedCells'))} cells appended.")
 
         except HttpError as err:
             print(err)
@@ -177,8 +147,6 @@ class Sheets:
                 valueInputOption="USER_ENTERED",
                 body=body,
             ).execute()
-
-            print(f"{result.get('updatedCells')} cells updated.")
 
         except HttpError as err:
             print(err)
