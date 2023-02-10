@@ -1,13 +1,10 @@
 from __future__ import print_function
 
-import os.path
-
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 
-SPREADSHEET_ID = os.environ["SPREADSHEET_ID"]
 TIMESHEET_NAME = "Timesheet"
 TIMESHEET_RANGE = "Timesheet!A2:D"
 ROSTER_RANGE = "Roster!A2:C"
@@ -27,11 +24,15 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 
 class Sheets:
+    spreadsheet_id = None
     creds = None
     service = None
     sheet = None
     roster = None
     timesheet = None
+
+    def __init__(self, spreadsheet_id):
+        self.spreadsheet_id = spreadsheet_id
 
     def auth(self):
         self.creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES) 
@@ -44,7 +45,7 @@ class Sheets:
 
     def fetch_roster(self):
         try:
-            result = self.sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=ROSTER_RANGE).execute()
+            result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id, range=ROSTER_RANGE).execute()
             values = result.get('values', [])
 
             if not values:
@@ -58,7 +59,7 @@ class Sheets:
 
     def fetch_timesheet(self):
         try:
-            result = self.sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=TIMESHEET_RANGE).execute()
+            result = self.sheet.values().get(spreadsheetId=self.spreadsheet_id, range=TIMESHEET_RANGE).execute()
             values = result.get('values', [])
 
             if not values:
@@ -121,7 +122,7 @@ class Sheets:
             body = { "values": [row] }
 
             result = self.sheet.values().append(
-                spreadsheetId=SPREADSHEET_ID,
+                spreadsheetId=self.spreadsheet_id,
                 range=TIMESHEET_RANGE,
                 valueInputOption="USER_ENTERED",
                 body=body,
@@ -142,7 +143,7 @@ class Sheets:
             body = { "values": [clock_in_row] }
 
             result = self.sheet.values().update(
-                spreadsheetId=SPREADSHEET_ID,
+                spreadsheetId=self.spreadsheet_id,
                 range=timesheet_range_for_row(rowIndex),
                 valueInputOption="USER_ENTERED",
                 body=body,

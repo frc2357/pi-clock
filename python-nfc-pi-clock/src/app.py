@@ -1,13 +1,21 @@
+import os
 import atexit
+import asyncio
 from datetime import datetime, timedelta
-from flask import Flask, request, json
 from apscheduler.schedulers.background import BackgroundScheduler
 from nfc_poll import NFCPoll
 from display import Display
+from read_settings_json import read_settings_json
 from write_credentials_json import write_credentials_json
 from sheets import Sheets
 
+SETTINGS_FILE = "./timeclock.json"
+PING_HOSTNAME = "google.com"
+
+settings = read_settings_json(SETTINGS_FILE)
+
 class LocalState:
+    has_internet = False
     display = None
     sheets = None
     nfc_poll = None
@@ -15,10 +23,22 @@ class LocalState:
 
     def __init__(self):
         self.display = Display()
-        self.sheets = Sheets()
+        self.sheets = Sheets(settings["spreadsheet_id"])
         self.nfc_poll = NFCPoll()
         self.nfc_poll.nfc_open()
 
+    def check_internet(self):
+        response = os.system(f"ping -c 1 {PING_HOSTNAME}")
+        had_internet = self.has_internet
+        self.has_internet = (response == 0)
+        
+        if not had_internet and self.has_internet:
+            print("Internet connection is UP")
+            self.sheets.auth()
+        elif had_internet and not self.has_internet:
+            print("Internet connection is DOWN")
+
+        return self.has_internet
 
     def update_nfc(self):
         prev_nfc_tag_id = self.nfc_tag_id
@@ -27,6 +47,9 @@ class LocalState:
         if prev_nfc_tag_id != self.nfc_tag_id and self.nfc_tag_id != None:
             self.display.scanning()
             self.handle_clock_in_out(self.nfc_tag_id)
+
+    def update_display(self):
+        self.display.update_display()
 
     def handle_clock_in_out(self, nfc_tag_id):
         when = datetime.now()
@@ -47,26 +70,36 @@ class LocalState:
             self.sheets.clock_in(user_name, when)
             self.display.clock_in(user_name, when)
 
+print("Creating local state...")
 local_state = LocalState()
 
+scheduler = BackgroundScheduler()
 def update_nfc():
     local_state.update_nfc()
 
 def update_display():
-    local_state.display.update_display()
+    local_state.update_display()
 
-write_credentials_json()
-local_state.sheets.auth()
+def check_internet():
+    local_state.check_internet()
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=update_nfc, trigger="interval", seconds=1)
-scheduler.add_job(func=update_display, trigger="interval", seconds=1)
+print("Scheduling tasks...")
+scheduler.add_job(func=update_display, trigger="interval", seconds=1, id="update_display")
+scheduler.add_job(func=check_internet, trigger="interval", minutes=15, id="check_internet")
 scheduler.start()
 
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())
 
-app = Flask(__name__)
+write_credentials_json(settings)
+check_internet()
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=4000)
+print("Main loop")
+
+async def main():
+    while True:
+        update_nfc()
+        await asyncio.sleep(0.5)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())

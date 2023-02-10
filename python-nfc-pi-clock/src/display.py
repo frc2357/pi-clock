@@ -15,7 +15,7 @@ class Display:
 
     def __init__(self):
         self.display = lcd()
-        self.display_idle()
+        self.display_loading()
 
     def scanning(self):
         self.set_event([
@@ -57,6 +57,14 @@ class Display:
             "System Meltdown".center(self.COLUMNS, " "),
             now.strftime("%I:%M:%S %p").center(self.COLUMNS, " "),
             now.strftime("%A %m/%d/%y").center(self.COLUMNS, " "),
+        ])
+
+    def display_loading(self):
+        self.set_display([
+            "".ljust(self.COLUMNS, " "),
+            "LOADING...".center(self.COLUMNS, " "),
+            "".ljust(self.COLUMNS, " "),
+            "".ljust(self.COLUMNS, " "),
         ])
     
     def set_event(self, lines):

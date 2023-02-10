@@ -1,0 +1,9 @@
+{
+  "spreadsheet_id": "<google spreadsheet id>",
+  "client_email": "<name>@<subdomain>.iam.gserviceaccount.com",
+  "client_id": "<client_id>",
+  "client_x509_cert_url": "<service_account_x509_url>",
+  "private_key": "<private key>",
+  "private_key_id": "<private key id>",
+  "project_id": "<google project id>"
+}
