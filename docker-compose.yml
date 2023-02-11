@@ -3,5 +3,8 @@ version: "2"
 services:
   python-nfc-pi-clock:
     build: ./python-nfc-pi-clock
+    restart: on-failure
+    environment:
+      - TZ=$TZ
     devices:
       - "/dev/i2c-1:/dev/i2c-1"

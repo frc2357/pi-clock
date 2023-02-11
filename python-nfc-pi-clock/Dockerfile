@@ -1,10 +1,14 @@
-# base-image for python on any machine using a template variable,
-# see more about dockerfile templates here: https://www.balena.io/docs/learn/develop/dockerfile/
-FROM balenalib/%%BALENA_MACHINE_NAME%%-python:3-stretch-run
+FROM balenalib/raspberrypi3-python:3-stretch-run
 
 # use `install_packages` if you need to install dependencies,
 # for instance if you need git, just uncomment the line below.
-RUN install_packages build-essential bzip2 libnfc-dev tzdata
+RUN apt update && apt install -y --no-install-recommends \
+    tzdata \
+    build-essential \
+    bzip2 \
+    libnfc-dev \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set our working directory
 WORKDIR /usr/src/app
@@ -28,5 +32,5 @@ make install; \
 popd; \
 "
 
-# main.py will run when container starts up on the device
+# app.py will run when container starts up on the device
 CMD ["python","-u","src/app.py"]
