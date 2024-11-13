@@ -1,4 +1,4 @@
-FROM balenalib/raspberrypi3-python:3-stretch-run
+FROM balenalib/raspberrypi3-python:3-bullseye-run
 
 # use `install_packages` if you need to install dependencies,
 # for instance if you need git, just uncomment the line below.
