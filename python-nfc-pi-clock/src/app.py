@@ -1,3 +1,9 @@
+import board
+
+print(dir(board))
+
+exit()
+
 import os
 import atexit
 import asyncio

@@ -8,6 +8,8 @@ RUN apt update && apt install -y --no-install-recommends \
     bzip2 \
     libnfc-dev \
     tzdata \
+    python3-dev \
+    python3-rpi.gpio \
     && rm -rf /var/lib/apt/lists/*
 
 # Set our working directory
