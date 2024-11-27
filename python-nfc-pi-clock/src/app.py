@@ -1,9 +1,3 @@
-import board
-
-print(dir(board))
-
-exit()
-
 import os
 import atexit
 import asyncio
@@ -31,7 +25,6 @@ class LocalState:
         self.display = Display()
         self.sheets = Sheets(settings["spreadsheet_id"])
         self.nfc_poll = NFCPoll()
-        self.nfc_poll.nfc_open()
 
     def check_internet(self):
         response = os.system(f"ping -c 1 {PING_HOSTNAME}")

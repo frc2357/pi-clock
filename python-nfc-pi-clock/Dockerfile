@@ -35,4 +35,4 @@ popd; \
 "
 
 # app.py will run when container starts up on the device
-CMD ["python","-u","src/app.py"]
+CMD ["python3","-u","src/app.py"]
