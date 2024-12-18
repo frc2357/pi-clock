@@ -1,6 +1,7 @@
 import os
 import atexit
 import asyncio
+import time
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from nfc_poll import NFCPoll
@@ -32,7 +33,7 @@ class LocalState:
         self.has_internet = (response == 0)
         
         if not had_internet and self.has_internet:
-            print("Internet connection is UP")
+            print("Internet connection is UP\n")
             self.sheets.auth()
         elif had_internet and not self.has_internet:
             print("Internet connection is DOWN")
@@ -69,7 +70,11 @@ class LocalState:
             self.sheets.clock_in(user_name, when)
             self.display.clock_in(user_name, when)
 
-print("Creating local state...")
+# When not using Docker, script starts running sooner which is causing us to try and create the sheets object before it is ready
+print('Waiting 30 seconds for internet connection...\n')
+time.sleep(30)
+
+print("Creating local state...\n")
 local_state = LocalState()
 
 scheduler = BackgroundScheduler()
@@ -82,7 +87,7 @@ def update_display():
 def check_internet():
     local_state.check_internet()
 
-print("Scheduling tasks...")
+print("Scheduling tasks...\n")
 scheduler.add_job(func=update_display, trigger="interval", seconds=1, id="update_display")
 scheduler.add_job(func=check_internet, trigger="interval", minutes=15, id="check_internet")
 scheduler.start()

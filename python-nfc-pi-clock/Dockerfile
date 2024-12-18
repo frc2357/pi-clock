@@ -3,7 +3,6 @@ FROM balenalib/raspberrypi3-python:3-bullseye-run
 # use `install_packages` if you need to install dependencies,
 # for instance if you need git, just uncomment the line below.
 RUN apt update && apt install -y --no-install-recommends \
-    tzdata \
     build-essential \
     bzip2 \
     libnfc-dev \

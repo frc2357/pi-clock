@@ -169,4 +169,4 @@ any tampering to occur, the change history would be visible.
 
 ### WiFi Setup
 
-If you're shop has WiFi and you're setting this up at home, many home routers have a "guest" SSID you can set to the exact same name and password as your shop WiFi. This makes testing seamless.
+If your shop has WiFi and you're setting this up at home, many home routers have a "guest" SSID you can set to the exact same name and password as your shop WiFi. This makes testing seamless.
