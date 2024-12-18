@@ -125,6 +125,26 @@ sudo raspi-config
 3. Enable I2C
 4. Select Finish
 
+# NOTE:
+
+On this branch of the repo, I (tyson453) have not yet been able to get Docker functioning again after the changes I've made. On our current setup, I have simply added a line to the Raspberry Pi's crontab that runs `pi-clock/python-nfc-pi-clock/launcher.sh` and outputs into `~/logs/timeclock.log`:
+
+Start editing crontab
+
+```
+sudo crontab -e
+```
+
+Add following line at the end of the crontab file
+
+```
+@reboot sh /home/frc2357/pi-clock/python-nfc-pi-clock/launcher.sh > /home/frc2357/logs/timeclock.log 2>&1
+```
+
+Use following site for more instructures if necessary: https://www.instructables.com/Raspberry-Pi-Launch-Python-script-on-startup/
+
+### End note
+
 From here, you'll want to run these commands on your Raspberry Pi in your ssh session:
 
 ```
