@@ -1,5 +1,5 @@
 create table public.timeclock_event (
-    id int primary key not null,
+    id serial primary key,
     user_id int not null,
     clock_in timestamptz,
     clock_out timestamptz,
