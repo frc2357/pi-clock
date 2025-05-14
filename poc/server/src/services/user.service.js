@@ -1,11 +1,14 @@
 import { supabase } from '../utils/supabase.js'
 
-const USER_TABLE_NAME = 'user'
+const USER_TABLE_NAME = 'user_profile'
 
 export async function getAllUsers() {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
-        .select('*')
+        .select(`
+            *,
+            user_role ( * )
+        `)
 
     if (error) throw error
     return data
@@ -14,7 +17,10 @@ export async function getAllUsers() {
 export async function getUserById(id) {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
-        .select('*')
+        .select(`
+            *,
+            user_role ( * )
+        `)
         .eq('id', id)
         .single()
 

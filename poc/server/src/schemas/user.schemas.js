@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 const fields = {
     id: z.coerce.number().int(),
+    user_uid: z.string().uuid(),
+    user_role_id: z.coerce.number().int(),
     nfc_id: z.string(),
-    email: z.string(),
-    display_name: z.string(),
-    profile_pic_url: z.string()
+    show_realtime_clockins: z.boolean().default(false),
 }
 
 export const getUserById = z.object({
@@ -16,10 +16,9 @@ export const getUserById = z.object({
 
 export const createUser = z.object({
     body: z.object({
+        user_role_id: fields.user_role_id,
         nfc_id: fields.nfc_id,
-        email: fields.email,
-        display_name: fields.display_name.nullable(),
-        profile_pic_url: fields.profile_pic_url.nullable()
+        show_realtime_clockins: fields.show_realtime_clockins,
     })
 })
 
@@ -28,9 +27,9 @@ export const updateUser = z.object({
         id: fields.id
     }),
     body: z.object({
+        user_uid: fields.user_uid.optional(),
+        user_role_id: fields.user_role_id.optional(),
         nfc_id: fields.nfc_id.optional(),
-        email: fields.email.optional(),
-        display_name: fields.display_name.nullable().optional(),
-        profile_pic_url: fields.profile_pic_url.nullable().optional()
+        show_realtime_clockins: fields.show_realtime_clockins.optional(),
     })
 })
