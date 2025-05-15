@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const fields = {
     id: z.coerce.number().int(),
-    user_id: z.coerce.number().int(),
+    nfc_id: z.string(),
     clock_in: z.string().datetime().nullable(),
     clock_out: z.string().datetime().nullable(),
 }
@@ -15,7 +15,7 @@ export const getEventById = z.object({
 
 export const createEvent = z.object({
     body: z.object({
-        user_id: fields.user_id,
+        nfc_id: fields.nfc_id,
         clock_in: fields.clock_in,
         clock_out: fields.clock_in,
     })
@@ -26,7 +26,7 @@ export const updateEvent = z.object({
         id: fields.id
     }),
     body: z.object({
-        user_id: fields.user_id.optional(),
+        nfc_id: fields.nfc_id.optional(),
         clock_in: fields.clock_in.optional(),
         clock_out: fields.clock_in.optional(),
     })
