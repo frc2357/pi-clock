@@ -9,5 +9,6 @@ router.get('/', eventController.getAllEvents)
 router.get('/:id', validateRequest(schemas.getEventById), eventController.getEventById)
 router.post('/', validateRequest(schemas.createEvent), eventController.createEvent)
 router.put('/:id', validateRequest(schemas.updateEvent), eventController.updateEvent)
+router.post('/record', validateRequest(schemas.recordEvent), eventController.recordEvent)
 
 export default router

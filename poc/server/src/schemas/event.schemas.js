@@ -31,3 +31,9 @@ export const updateEvent = z.object({
         clock_out: fields.clock_in.optional(),
     })
 })
+
+export const recordEvent = z.object({
+    query: z.object({
+        nfc_id: fields.nfc_id
+    })
+})

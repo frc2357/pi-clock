@@ -42,3 +42,15 @@ export async function updateEvent(id, updates) {
     if (error) throw error
     return data
 }
+
+export async function getLatestForNFCId(nfc_id) {
+    const { data, error } = await supabase
+        .from(EVENT_TABLE_NAME)
+        .select('*')
+        .eq('nfc_id', nfc_id)
+        .order('clock_in', { ascending: false })
+        .maybeSingle()
+
+    if (error) throw error
+    return data
+}
