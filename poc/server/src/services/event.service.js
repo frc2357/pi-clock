@@ -37,7 +37,7 @@ export async function updateEvent(id, updates) {
         .from(EVENT_TABLE_NAME)
         .update(updates)
         .eq('id', id)
-        .single()
+        .maybeSingle()
 
     if (error) throw error
     return data
@@ -49,8 +49,8 @@ export async function getLatestForNFCId(nfc_id) {
         .select('*')
         .eq('nfc_id', nfc_id)
         .order('clock_in', { ascending: false })
-        .maybeSingle()
+        .limit(1)
 
     if (error) throw error
-    return data
+    return data[0]
 }

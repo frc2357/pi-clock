@@ -28,6 +28,20 @@ export async function getUserById(id) {
     return data
 }
 
+export async function getUserByNfcId(nfc_id) {
+    const { data, error } = await supabase
+        .from(USER_TABLE_NAME)
+        .select(`
+            *,
+            user_role ( * )
+        `)
+        .eq('nfc_id', nfc_id)
+        .single()
+
+    if (error) throw error
+    return data
+}
+
 export async function createUser(user) {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
@@ -43,7 +57,7 @@ export async function updateUser(id, updates) {
         .from(USER_TABLE_NAME)
         .update(updates)
         .eq('id', id)
-        .single()
+        .maybeSingle()
 
     if (error) throw error
     return data
