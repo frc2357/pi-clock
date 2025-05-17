@@ -1,0 +1,5 @@
+python-dotenv
+requests
+apscheduler
+adafruit-circuitpython-pn532
+RPLCD
