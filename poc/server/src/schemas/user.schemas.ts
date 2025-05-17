@@ -12,14 +12,14 @@ const baseUserFields = {
     user_uid: fields.user_uid,
     user_role_id: fields.user_role_id,
     nfc_id: fields.nfc_id,
-    show_relatime_clockins: fields.show_realtime_clockins
+    show_realtime_clockins: fields.show_realtime_clockins
 }
 
 const partialUserFields = {
-    user_uid: fields.user_uid,
-    user_role_id: fields.user_role_id,
-    nfc_id: fields.nfc_id,
-    show_relatime_clockins: fields.show_realtime_clockins
+    user_uid: fields.user_uid.optional(),
+    user_role_id: fields.user_role_id.optional(),
+    nfc_id: fields.nfc_id.optional(),
+    show_realtime_clockins: fields.show_realtime_clockins.optional(),
 }
 
 export const getUserById = z.object({

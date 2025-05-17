@@ -5,57 +5,24 @@ import * as eventService from '../services/event.service.js'
 import * as userService from '../services/user.service.js'
 import { isClockInTimeTooOld } from '../utils/event.utils.js'
 import { PostgresError } from 'pg-error-enum'
+import ControllerBuilder from '../utils/controller-builder.js'
 
-export const getAllEvents = async (req: Request, res: Response) => {
-    try {
-        const events = await eventService.getAllEvents()
-        res.status(200).json(events)
-    } catch (error) {
-        res.status(500).json(error)
-    }
-}
-
-export const getEventById = async (req: Request, res: Response) => {
-    try {
-        const input = schemas.getEventById.parse(req)
-        const event = await eventService.getEventById(input)
-        res.status(200).json(event)
-    } catch (error) {
-        if (error instanceof ZodError) {
-            res.status(422).json(error)
-        } else {
-            res.status(500).json(error)
-        }
-    }
-}
-
-export const createEvent = async (req: Request, res: Response) => {
-    try {
-        const input = schemas.createEvent.parse(req)
-        const event = await eventService.createEvent(input)
-        res.status(201).json(event)
-    } catch (error) {
-        if (error instanceof ZodError) {
-            res.status(422).json(error)
-        } else {
-            res.status(500).json(error)
-        }
-    }
-}
-
-export const updateEvent = async (req: Request, res: Response) => {
-    try {
-        const input = schemas.updateEvent.parse(req)
-        const event = await eventService.updateEvent(input)
-        res.status(200).json(event)
-    } catch (error) {
-        if (error instanceof ZodError) {
-            res.status(422).json(error)
-        } else {
-            res.status(500).json(error)
-        }
-    }
-}
+export const getAllEvents = new ControllerBuilder()
+    .calls(eventService.getAllEvents)
+    .build()
+export const getEventById = new ControllerBuilder()
+    .validatesWith(schemas.getEventById)
+    .calls(eventService.getEventById)
+    .build()
+export const createEvent = new ControllerBuilder()
+    .validatesWith(schemas.createEvent)
+    .calls(eventService.createEvent)
+    .onSuccess(201)
+    .build()
+export const updateEvent = new ControllerBuilder()
+    .validatesWith(schemas.updateEvent)
+    .calls(eventService.updateEvent)
+    .build()
 
 export const recordEvent = async (req: Request, res: Response) => {
     try {

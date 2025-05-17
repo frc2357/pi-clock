@@ -27,7 +27,7 @@ export async function createEvent({ body }: CreateEventParams) {
     const { data, error } = await supabase
         .from(EVENT_TABLE_NAME)
         .insert([body])
-        .single()
+        .select()
 
     if (error) throw error
     return data
@@ -38,7 +38,7 @@ export async function updateEvent({params, body}: UpdateEventParams) {
         .from(EVENT_TABLE_NAME)
         .update(body)
         .eq('id', params.id)
-        .maybeSingle()
+        .select()
 
     if (error) throw error
     return data

@@ -43,7 +43,7 @@ export async function createUser({ body }: CreateUserParams) {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
         .insert([body])
-        .single()
+        .select()
 
     if (error) throw error
     return data
@@ -54,7 +54,7 @@ export async function updateUser({params, body}: UpdateUserParams) {
         .from(USER_TABLE_NAME)
         .update(body)
         .eq('id', params.id)
-        .maybeSingle()
+        .select()
 
     if (error) throw error
     return data
