@@ -70,11 +70,22 @@ class Timeclock:
             response = requests.post(
                 f"{env['API_URL']}/api/events/record?nfc_id={nfc_id}"
             )
+            status = response.status_code
+            data = repsonse.json()
+            print(status, data)
 
-            print(response.json())
-            # If user is null, self.display.unrecognized_nfc()
-            # If event == 'clock_in', self.display.clock_in()
-            # If event == 'clock_out', self.display.clock_out()
+            # User with nfc_id does not exist
+            if status == 400:
+                return self.display.unrecognized_nfc(nfc_id)
+            if status == 200:
+                event = data['event']
+                username = data['user']['display_name']
+                when = datetime.fromisoformat(data['when']).astimezone()
+                if event == 'clock_in':
+                    return self.display.clock_in(username, when)
+                elif event == 'clock_out':
+                    return self.display.clock_out(username, when)
+            raise Exception(data)
         except Exception as e:
             print(f"Failed to record event: {e}")
             print(f"nfc_id: {nfc_id} - timestamp: {datetime.now()}")
