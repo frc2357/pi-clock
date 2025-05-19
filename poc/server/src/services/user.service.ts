@@ -1,10 +1,15 @@
-import { GetUserByIdParams, CreateUserParams, UpdateUserParams } from '../schemas/user.schemas.js'
+import { CreateUserParams, UpdateUserParams, GetSingleUserParams } from '../schemas/user.schemas.js'
 import { supabase } from '../utils/supabase.js'
 
 const USER_TABLE_NAME = 'user_profile'
 const SELECT_USER_STATEMENT = `
     *,
     user_role ( * )
+`
+const SELECT_USER_AND_EVENTS_STATEMENT = `
+    *,
+    user_role ( * ),
+    timeclock_event ( * )
 `
 
 export async function getAllUsers() {
@@ -16,24 +21,52 @@ export async function getAllUsers() {
     return data
 }
 
-export async function getUserById({ params }: GetUserByIdParams) {
+export async function getAllUserEvents() {
+    const { data, error } = await supabase
+        .from(USER_TABLE_NAME)
+        .select(SELECT_USER_AND_EVENTS_STATEMENT)
+    
+    if (error) throw error
+    return data
+}
+
+export async function getUserById({ query }: GetSingleUserParams) {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
         .select(SELECT_USER_STATEMENT)
-        .eq('id', params.id)
+        .eq('id', query.id)
         .single()
 
     if (error) throw error
     return data
 }
 
-// TODO: Make general getUserByInput route/controller/service that uses query params
-export async function getUserByNfcId(nfc_id: string) {
+export async function getUserByNfcId({ query }: GetSingleUserParams) {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
         .select(SELECT_USER_STATEMENT)
-        .eq('nfc_id', nfc_id)
+        .eq('nfc_id', query.nfc_id)
         .single()
+
+    if (error) throw error
+    return data
+}
+
+export async function getUserEventsById({ query }: GetSingleUserParams) {
+    const { data, error } = await supabase
+        .from(USER_TABLE_NAME)
+        .select(SELECT_USER_AND_EVENTS_STATEMENT)
+        .eq('id', query.id)
+
+    if (error) throw error
+    return data
+}
+
+export async function getUserEventsByNfcId({ query }: GetSingleUserParams) {
+    const { data, error } = await supabase
+        .from(USER_TABLE_NAME)
+        .select(SELECT_USER_AND_EVENTS_STATEMENT)
+        .eq('id', query.nfc_id)
 
     if (error) throw error
     return data

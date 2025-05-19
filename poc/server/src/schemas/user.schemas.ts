@@ -22,8 +22,11 @@ const partialUserFields = {
     show_realtime_clockins: fields.show_realtime_clockins.optional(),
 }
 
-export const getUserById = z.object({
-    params: z.object({ id: fields.id })
+export const getSingleUser = z.object({
+    query: z.object({
+        id: fields.id.optional(),
+        nfc_id: fields.nfc_id.optional()
+    })
 })
 
 export const createUser = z.object({
@@ -35,6 +38,6 @@ export const updateUser = z.object({
     body: z.object(partialUserFields)
 })
 
-export type GetUserByIdParams = z.infer<typeof getUserById>
+export type GetSingleUserParams = z.infer<typeof getSingleUser>
 export type CreateUserParams = z.infer<typeof createUser>
 export type UpdateUserParams = z.infer<typeof updateUser>

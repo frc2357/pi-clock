@@ -55,7 +55,7 @@ export const recordEvent = async (req: Request, res: Response) => {
             event = 'clock_out'
         }
 
-        const user = await userService.getUserByNfcId(input.query.nfc_id)
+        const user = await userService.getUserByNfcId(input)
         res.status(200).json({ event, user, when: now.toISOString() })
     } catch (error: any) {
         if (error instanceof ZodError) {
