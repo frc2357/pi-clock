@@ -25,6 +25,7 @@ export async function getAllUserEvents() {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
         .select(SELECT_USER_AND_EVENTS_STATEMENT)
+        .order('clock_in', { ascending: false, referencedTable: 'timeclock_event' })
     
     if (error) throw error
     return data
@@ -56,6 +57,7 @@ export async function getUserEventsById({ query }: GetSingleUserParams) {
     const { data, error } = await supabase
         .from(USER_TABLE_NAME)
         .select(SELECT_USER_AND_EVENTS_STATEMENT)
+        .order('clock_in', { ascending: false, referencedTable: 'timeclock_event' })
         .eq('id', query.id)
 
     if (error) throw error

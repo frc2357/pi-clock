@@ -1,7 +1,8 @@
 import React from "react";
+import UserTable from "../components/UserTable";
 
 const HomePage = () => {
-  return <div>Hello from HomePage</div>;
+  return <UserTable />;
 };
 
 export default HomePage;
