@@ -4,7 +4,7 @@ import busio
 from adafruit_pn532.i2c import PN532_I2C
 
 # Seconds
-TIMEOUT = 0.5
+TIMEOUT = 0.45
 
 
 class NFCModule:

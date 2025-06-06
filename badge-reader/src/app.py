@@ -1,4 +1,8 @@
 import os
+import time
+import requests
+from pathlib import Path
+from dotenv import dotenv_values
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -7,14 +11,17 @@ from display import Display
 
 PING_HOSTNAME = "google.com"
 
-ENV_FILE = "../.env"
+PARENT_DIR = Path(__file__).resolve().parent.parent
+ENV_FILE = PARENT_DIR / ".env"
 env = dotenv_values(ENV_FILE)
+API_URL = env['API_URL']
 
 
 class Timeclock:
     def __init__(self):
         self.has_internet = False
         self.nfc_module = NFCModule()
+        self.nfc_id = None
         self.display = Display()
 
     def start(self):
@@ -49,8 +56,10 @@ class Timeclock:
 
         if not had_internet and self.has_internet:
             print("Internet connection is UP")
+            self.display.done_loading()
         elif had_internet and not self.has_internet:
             print("Internet connection is DOWN")
+            self.display.loading()
 
         return self.has_internet
 
@@ -58,21 +67,21 @@ class Timeclock:
         self.display.update()
 
     def update_nfc(self):
-        prev_nfc_id = nfc_id
+        prev_nfc_id = self.nfc_id
         nfc_id = self.nfc_module.poll()
 
         if nfc_id and nfc_id != prev_nfc_id:
             self.display.scanning()
             self.record_event(nfc_id)
+        
+        self.nfc_id = nfc_id
 
     def record_event(self, nfc_id):
         try:
-            response = requests.post(
-                f"{env['API_URL']}/api/events/record?nfc_id={nfc_id}"
-            )
+            url = f"{API_URL}/api/events/record?nfc_id={nfc_id}"
+            response = requests.post(url)
             status = response.status_code
-            data = repsonse.json()
-            print(status, data)
+            data = response.json()
 
             # User with nfc_id does not exist
             if status == 400:

@@ -10,6 +10,7 @@ PORT = 1
 COLUMNS = 20
 ROWS = 4
 
+BLANK_LINE = " " * COLUMNS
 
 class Display(CharLCD):
     def __init__(self):
@@ -22,11 +23,12 @@ class Display(CharLCD):
             charmap=CHARACTER_MAP,
         )
 
-        self.display_lines = None
         self.last_event_time = None
+        self.loading()
+        self.render()
 
     def update(self):
-        if self.has_event_elapsed():
+        if self.has_loaded and self.has_event_elapsed():
             self.idle()
 
         self.render()
@@ -50,28 +52,34 @@ class Display(CharLCD):
         ]
 
     def loading(self):
+        self.has_loaded = False
         self.display_lines = [
-            "",
-            self.align("LOADING"),
-            "",
-            "",
+            BLANK_LINE,
+            self.align("LOADING..."),
+            BLANK_LINE,
+            BLANK_LINE,
         ]
+    
+    def done_loading(self):
+        self.has_loaded = True
 
     def scanning(self):
-        self.display_lines = [
-            "",
-            self.align("SCANNING"),
-            "",
-            "",
-        ]
+        self.set_event(
+            [
+                BLANK_LINE,
+                self.align("SCANNING..."),
+                BLANK_LINE,
+                BLANK_LINE,
+            ]
+        )
 
     def unrecognized_nfc(self, nfc_id):
         self.set_event(
             [
                 self.align("UNRECOGNIZED NFC"),
-                "",
+                BLANK_LINE,
                 self.align(nfc_id),
-                "",
+                BLANK_LINE,
             ]
         )
 
@@ -79,7 +87,7 @@ class Display(CharLCD):
         self.set_event(
             [
                 self.align("CLOCK IN"),
-                "",
+                BLANK_LINE,
                 self.align(name),
                 self.align(when.strftime("at %I:%M:%S")),
             ]
@@ -89,16 +97,16 @@ class Display(CharLCD):
         self.set_event(
             [
                 self.align("CLOCK OUT"),
-                "",
+                BLANK_LINE,
                 self.align(name),
                 self.align(when.strftime("at %I:%M:%S")),
             ]
         )
 
     def has_event_elapsed(self):
-        return (
+        return not self.last_event_time or (
             self.last_event_time
-            and self.last_event_time + EVENT_DURATION > datetime.now()
+            and self.last_event_time + EVENT_DURATION < datetime.now()
         )
 
     def align(self, text, align='center', character=' '):
