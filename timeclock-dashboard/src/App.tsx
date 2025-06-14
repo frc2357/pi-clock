@@ -5,21 +5,24 @@ import LogoutPage from "./pages/LogoutPage";
 import HomePage from "./pages/HomePage";
 import UserPage from "./pages/UserPage";
 import CreateUserPage from "./pages/CreateUserPage";
+import DefaultLayout from "./layout/DefaultLayout";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
-      <Authenticated>
+      <DefaultLayout>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/user/:id" element={<UserPage />} />
-          <Route path="/create-user" element={<CreateUserPage />} />
-          <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
-      </Authenticated>
+        <Authenticated>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/user/:id" element={<UserPage />} />
+            <Route path="/create-user" element={<CreateUserPage />} />
+            <Route path="/logout" element={<LogoutPage />} />
+          </Routes>
+        </Authenticated>
+      </DefaultLayout>
       <Unauthenticated>
         <Navigate to="/login" />
       </Unauthenticated>
