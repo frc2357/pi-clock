@@ -12,7 +12,7 @@ export default function GoogleLoginButton() {
   };
 
   return (
-    <Button onClick={handleLogin}>
+    <Button className="cursor-pointer" onClick={handleLogin}>
       <FaGoogle />
       Sign in with Google
     </Button>
