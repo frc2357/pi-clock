@@ -7,6 +7,7 @@ import {
   CssBaseline,
   type ThemeOptions,
   ThemeProvider,
+  Box,
 } from "@mui/material";
 import "./index.css";
 import App from "./App.tsx";
@@ -35,8 +36,10 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <ConvexAuthProvider client={convex}>
-        <CssBaseline />
-        <App />
+        <Box sx={{ height: "100vh" }}>
+          <CssBaseline />
+          <App />
+        </Box>
       </ConvexAuthProvider>
     </ThemeProvider>
   </StrictMode>
