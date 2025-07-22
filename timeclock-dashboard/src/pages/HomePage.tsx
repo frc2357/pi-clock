@@ -11,18 +11,13 @@ import {
     Typography,
 } from "@mui/material";
 import { useQuery } from "convex/react";
-import { useEffect } from "react";
 import { api } from "../../convex/_generated/api";
 
 export default function HomePage() {
     const teamMembers = useQuery(api.team_member.list);
 
-    useEffect(() => {
-        console.log(teamMembers);
-    }, [teamMembers]);
-
     return (
-        <Box sx={{ height: "100%" }}>
+        <Box sx={{ paddingTop: 8, height: "100%" }}>
             <Typography variant="h3" sx={{ margin: 5 }}>
                 Team Dashboard
             </Typography>

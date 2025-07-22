@@ -1,5 +1,21 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
+
+export const getLoggedInMember = query({
+  args: {},
+  handler: async (ctx) => {
+    const loggedInUserId = await getAuthUserId(ctx);
+    if (!loggedInUserId) return null;
+    const loggedInUser = await ctx.db.get(loggedInUserId);
+    if (!loggedInUser) return null;
+
+    return ctx.db
+      .query("team_member")
+      .withIndex("by_user_id", (q) => q.eq("user_id", loggedInUser?._id))
+      .first();
+  },
+});
 
 export const list = query({
   args: {},

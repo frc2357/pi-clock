@@ -4,7 +4,7 @@ import { Authenticated } from "convex/react";
 
 export default function Navbar() {
     return (
-        <AppBar position="static">
+        <AppBar position="fixed">
             <Toolbar>
                 <img style={{ height: 40, width: 40 }} src={logo} />
                 <Typography variant="h5" sx={{ margin: 2 }}>
