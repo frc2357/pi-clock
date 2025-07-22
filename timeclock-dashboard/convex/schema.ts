@@ -22,5 +22,6 @@ export default defineSchema({
         clock_out: v.optional(v.number())
     })
         .index("by_member_id", ["member_id"])
+        .index("by_member_id_clock_in", ["member_id", "clock_in"])
 
 });
