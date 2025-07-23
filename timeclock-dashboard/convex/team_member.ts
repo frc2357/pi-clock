@@ -1,6 +1,29 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+
+export const createMember = mutation({
+  args: {
+    user_id: v.id("users"),
+    nfc_id: v.string(),
+    is_student: v.boolean(),
+    is_admin: v.boolean(),
+    show_realtime_clockins: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const existingMember = await ctx.db
+      .query("team_member")
+      .withIndex("by_user_id", (q) => q.eq("user_id", args.user_id))
+      .first()
+    
+    if (existingMember) {
+      throw new Error("Member already exists for this user.");
+    }
+
+    const memberId = await ctx.db.insert("team_member", args);
+    return memberId;
+  }
+})
 
 export const getLoggedInMember = query({
   args: {},
@@ -35,7 +58,7 @@ export const list = query({
           .collect()
 
         const latest_event = events[0] || null;
-        const active = !latest_event?.clock_out 
+        const active = latest_event && !latest_event.clock_out 
         const total_hours = events.reduce((acc, event) => {
           if (event.clock_in && event.clock_out) {
             return acc + (event.clock_out - event.clock_in) / 3600000.0 // Convert ms to hours

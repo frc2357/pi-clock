@@ -6,6 +6,7 @@ import DefaultLayout from "./layout/DefaultLayout";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import HomePage from "./pages/HomePage";
+import CreateMemberPage from "./pages/CreateMemberPage";
 import { api } from "../convex/_generated/api";
 
 function App() {
@@ -22,6 +23,10 @@ function App() {
                     {loggedInMember ? (
                         <Routes>
                             <Route path="/" element={<HomePage />} />
+                            <Route
+                                path="/create-member"
+                                element={<CreateMemberPage />}
+                            />
                         </Routes>
                     ) : (
                         <Box

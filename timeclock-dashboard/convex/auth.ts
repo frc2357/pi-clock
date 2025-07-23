@@ -16,3 +16,20 @@ export const currentUser = query({
     return ctx.db.get(userId);
   }
 })
+
+export const getUsersWithoutMember = query({
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect()
+
+    const usersMap = await Promise.all(
+      users.map(async (user) => {
+        const members = await ctx.db
+          .query("team_member")
+          .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
+          .collect()
+        return members.length === 0 ? user : null;
+      })
+    )
+    return usersMap.filter((user) => user !== null)
+  }
+})
