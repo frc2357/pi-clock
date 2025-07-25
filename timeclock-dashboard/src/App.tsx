@@ -8,6 +8,7 @@ import LogoutPage from "./pages/LogoutPage";
 import HomePage from "./pages/HomePage";
 import CreateMemberPage from "./pages/CreateMemberPage";
 import { api } from "../convex/_generated/api";
+import { CircularProgress } from "@mui/material";
 
 function App() {
     const loggedInMember = useQuery(api.team_member.getLoggedInMember);
@@ -20,15 +21,19 @@ function App() {
                     <Route path="/logout" element={<LogoutPage />} />
                 </Routes>
                 <Authenticated>
-                    {loggedInMember ? (
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route
-                                path="/create-member"
-                                element={<CreateMemberPage />}
-                            />
-                        </Routes>
-                    ) : (
+                    {loggedInMember === undefined ? (
+                        <Box
+                            sx={{
+                                height: "100%",
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <CircularProgress size={100} />
+                        </Box>
+                    ) : loggedInMember === null ? (
                         <Box
                             sx={{
                                 height: "100%",
@@ -45,6 +50,14 @@ function App() {
                                 linked
                             </Typography>
                         </Box>
+                    ) : (
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route
+                                path="/create-member"
+                                element={<CreateMemberPage />}
+                            />
+                        </Routes>
                     )}
                 </Authenticated>
             </DefaultLayout>
