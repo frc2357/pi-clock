@@ -2,6 +2,13 @@ import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
+export const getMember = query({
+  args: {member_id: v.id("team_member")},
+  handler: async (ctx, { member_id }) => {
+    return ctx.db.get(member_id);
+  },
+})
+
 export const createMember = mutation({
   args: {
     user_id: v.id("users"),

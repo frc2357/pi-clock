@@ -13,9 +13,11 @@ import {
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import RealtimeClockinModal from "../components/RealtimeClockinModal";
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
     const teamMembers = useQuery(api.team_member.list);
+    const navigate = useNavigate();
 
     return (
         <Box sx={{ paddingTop: 8, height: "100%" }}>
@@ -44,8 +46,15 @@ export default function HomePage() {
                         </TableHead>
                         <TableBody>
                             {teamMembers?.map((member) => (
-                                <TableRow key={member._id}>
-                                    <TableCell>{member.user?.name}</TableCell>
+                                <TableRow
+                                    onClick={() =>
+                                        navigate(`/member/${member._id}`)
+                                    }
+                                    hover={true}
+                                    key={member._id}
+                                    sx={{ cursor: "pointer" }}
+                                >
+                                    <TableCell>{member.display_name}</TableCell>
                                     <TableCell align="right">
                                         {member.total_hours}
                                     </TableCell>

@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import CreateMemberPage from "./pages/CreateMemberPage";
 import { api } from "../convex/_generated/api";
 import { CircularProgress } from "@mui/material";
+import MemberPage from "./pages/MemberPage";
 
 function App() {
     const loggedInMember = useQuery(api.team_member.getLoggedInMember);
@@ -56,6 +57,10 @@ function App() {
                             <Route
                                 path="/create-member"
                                 element={<CreateMemberPage />}
+                            />
+                            <Route
+                                path="/member/:member_id"
+                                element={<MemberPage />}
                             />
                         </Routes>
                     )}
