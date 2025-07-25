@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import RealtimeClockinModal from "../components/RealtimeClockinModal";
 
 export default function HomePage() {
     const teamMembers = useQuery(api.team_member.list);
@@ -21,6 +22,7 @@ export default function HomePage() {
             <Typography variant="h3" sx={{ margin: 5 }}>
                 Team Dashboard
             </Typography>
+            <RealtimeClockinModal />
             <Paper sx={{ width: "auto", marginX: 10 }}>
                 <TableContainer>
                     <Table>

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 export const clockOut = mutation({
     args: { event_id: v.id("timeclock_event"), clock_out: v.number() },
@@ -18,5 +18,20 @@ export const clockIn = mutation({
         const event = await ctx.db.get(eventId);
 
         return event;
+    }
+})
+
+export const latestEventWithMember = query({
+    handler: async (ctx) => {
+        const latestEvent = await ctx.db
+            .query("timeclock_event")
+            .order("desc")
+            .first();
+        if (!latestEvent) return null;
+        const member = await ctx.db.get(latestEvent.member_id);
+        return {
+            ...latestEvent,
+            member
+        };
     }
 })
