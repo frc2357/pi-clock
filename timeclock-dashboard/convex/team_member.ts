@@ -5,6 +5,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 export const createMember = mutation({
   args: {
     user_id: v.id("users"),
+    display_name: v.string(),
     nfc_id: v.string(),
     is_student: v.boolean(),
     is_admin: v.boolean(),
@@ -50,7 +51,6 @@ export const list = query({
 
     const enriched = await Promise.all(
       members.map(async (member) => {
-        const user = await ctx.db.get(member.user_id);
         const events = await ctx.db
           .query("timeclock_event")
           .withIndex("by_member_id_clock_in", (q) => q.eq("member_id", member._id))
@@ -68,7 +68,6 @@ export const list = query({
 
         return {
           ...member,
-          user,
           events,
           latest_event,
           active,
@@ -88,13 +87,8 @@ export const getByNfcId = query({
       .query("team_member")
       .withIndex("by_nfc_id", (q) => q.eq("nfc_id", nfc_id))
       .first()
-    if (!member) return null;
-    const user = await ctx.db.get(member.user_id);
 
-    return {
-      ...member,
-      user
-    }
+    return member
   }
 })
 

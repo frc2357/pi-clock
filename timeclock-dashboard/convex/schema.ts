@@ -6,6 +6,7 @@ export default defineSchema({
     ...authTables,
     team_member: defineTable({
         user_id: v.id("users"),
+        display_name: v.string(),
         nfc_id: v.string(),
         is_student: v.boolean(),
         is_admin: v.boolean(),

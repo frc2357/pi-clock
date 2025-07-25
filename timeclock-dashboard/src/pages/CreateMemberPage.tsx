@@ -14,21 +14,25 @@ import { useState, FormEvent } from "react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 
+const defaultMemberData = {
+    user_id: "" as Id<"users">,
+    display_name: "",
+    nfc_id: "",
+    is_student: false,
+    is_admin: false,
+    show_realtime_clockins: false,
+};
+
 export default function CreateUserPage() {
     const memberlessUsers = useQuery(api.auth.getUsersWithoutMember);
-    const [formData, setFormData] = useState({
-        user_id: "" as Id<"users">,
-        nfc_id: "",
-        is_student: false,
-        is_admin: false,
-        show_realtime_clockins: false,
-    });
+    const [formData, setFormData] = useState({ ...defaultMemberData });
 
     const createMember = useMutation(api.team_member.createMember);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         await createMember(formData);
+        setFormData({ ...defaultMemberData });
     };
 
     return (
@@ -56,6 +60,26 @@ export default function CreateUserPage() {
                         gap: 2,
                     }}
                 >
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 0.5,
+                        }}
+                    >
+                        <label>Display Name *</label>
+                        <TextField
+                            name="nfc_id"
+                            value={formData.display_name}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    display_name: e.target.value,
+                                })
+                            }
+                            required
+                        />
+                    </Box>
                     <Box
                         sx={{
                             display: "flex",
