@@ -1,8 +1,7 @@
-import { AppBar, Box, Link, Button, Toolbar, Typography } from "@mui/material";
-import logo from "../assets/logo.png";
-import { Authenticated } from "convex/react";
-import { useQuery } from "convex/react";
+import { AppBar, Box, Button, Link, Toolbar, Typography } from "@mui/material";
+import { Authenticated, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import logo from "../assets/logo.png";
 
 export default function Navbar() {
     const loggedInMember = useQuery(api.team_member.getLoggedInMember);
@@ -24,17 +23,17 @@ export default function Navbar() {
                         FRC2357 Timeclock
                     </Typography>
                 </Link>
-                {loggedInMember && loggedInMember.is_admin && (
+                {loggedInMember?.is_admin && (
                     <Button
                         variant="contained"
                         href="/create-member"
-                        sx={{ marginLeft: 5 }}
+                        sx={{ marginLeft: 2 }}
                     >
                         Create Member
                     </Button>
                 )}
                 <Authenticated>
-                    <Box sx={{ marginLeft: "auto", display: "flex", gap: 3 }}>
+                    <Box sx={{ marginLeft: "auto", display: "flex", gap: 2 }}>
                         <Typography variant="h6">
                             {loggedInMember && loggedInMember.display_name}
                         </Typography>

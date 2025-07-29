@@ -1,6 +1,6 @@
 import { httpRouter } from "convex/server";
 import { auth } from "./auth";
-import { recordTimeclockEvent } from "./logTimeclockEvent";
+import { recordTimeclockEvent } from "./recordTimeclockEvent";
 
 const http = httpRouter();
 

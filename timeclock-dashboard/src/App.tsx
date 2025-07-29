@@ -1,14 +1,15 @@
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import Typography from "@mui/material/Typography";
+import { CircularProgress } from "@mui/material";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+import { api } from "../convex/_generated/api";
 import DefaultLayout from "./layout/DefaultLayout";
+import CreateMemberPage from "./pages/CreateMemberPage";
+import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
-import HomePage from "./pages/HomePage";
-import CreateMemberPage from "./pages/CreateMemberPage";
-import { api } from "../convex/_generated/api";
-import { CircularProgress } from "@mui/material";
 import MemberPage from "./pages/MemberPage";
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
             <Unauthenticated>
                 <Navigate to="/login" />
             </Unauthenticated>
+            <Toaster />
         </BrowserRouter>
     );
 }

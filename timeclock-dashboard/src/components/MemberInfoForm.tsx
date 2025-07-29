@@ -1,0 +1,262 @@
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
+import { Doc } from "convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
+import { FunctionReturnType, WithoutSystemFields } from "convex/server";
+import { useState } from "react";
+import { toast } from "sonner";
+import { api } from "../../convex/_generated/api";
+import MemberStatusChip from "./MemberStatusChip";
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface FormData
+    extends Omit<WithoutSystemFields<Doc<"team_member">>, "user_id"> {}
+
+export default function MemberEditForm({
+    member,
+}: {
+    member: FunctionReturnType<typeof api.team_member.getMember>;
+}) {
+    const loggedInMember = useQuery(api.team_member.getLoggedInMember);
+    const updateMember = useMutation(api.team_member.updateMember);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState<FormData>({
+        display_name: "",
+        nfc_id: "",
+        is_student: false,
+        is_admin: false,
+        show_realtime_clockins: false,
+        deleted_at: undefined,
+    });
+
+    if (!member) {
+        return null;
+    }
+
+    const handleEdit = () => {
+        setFormData({
+            display_name: member.display_name || "",
+            nfc_id: member.nfc_id || "",
+            is_student: member.is_student || false,
+            is_admin: member.is_admin || false,
+            show_realtime_clockins: member.show_realtime_clockins || false,
+            deleted_at: member.deleted_at || undefined,
+        });
+        setIsEditing(true);
+    };
+
+    const handleSave = async () => {
+        try {
+            await updateMember({
+                member_id: member._id,
+                ...formData,
+            });
+            setIsEditing(false);
+            toast.success("Member updated successfully");
+        } catch {
+            toast.error("Failed to update member");
+        }
+    };
+
+    return (
+        <Grid size={{ xs: 12, lg: 4 }}>
+            <Card sx={{ borderRadius: 3 }}>
+                <CardContent>
+                    <Stack spacing={2}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Typography variant="h6">
+                                User Information
+                            </Typography>
+                            {loggedInMember?.is_admin &&
+                                (isEditing ? (
+                                    <Stack direction="row" spacing={1}>
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            onClick={handleSave}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={() => setIsEditing(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </Stack>
+                                ) : (
+                                    <Button size="small" onClick={handleEdit}>
+                                        Edit
+                                    </Button>
+                                ))}
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.5,
+                            }}
+                        >
+                            <label>Display Name</label>
+                            <TextField
+                                name="display_name"
+                                value={
+                                    isEditing
+                                        ? formData.display_name
+                                        : member.display_name
+                                }
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        display_name: e.target.value,
+                                    })
+                                }
+                                disabled={!isEditing}
+                                fullWidth
+                                required
+                            />
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.5,
+                            }}
+                        >
+                            <label>NFC ID</label>
+                            <TextField
+                                name="nfc_id"
+                                value={
+                                    isEditing ? formData.nfc_id : member.nfc_id
+                                }
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        nfc_id: e.target.value,
+                                    })
+                                }
+                                disabled={!isEditing}
+                                fullWidth
+                                required
+                            />
+                        </Box>
+                        <FormControlLabel
+                            label="Is Student"
+                            control={
+                                <Checkbox
+                                    checked={
+                                        isEditing
+                                            ? formData.is_student
+                                            : member.is_student
+                                    }
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            is_student: e.target.checked,
+                                        })
+                                    }
+                                    disabled={!isEditing}
+                                />
+                            }
+                        />
+                        <FormControlLabel
+                            label="Is Admin"
+                            control={
+                                <Checkbox
+                                    checked={
+                                        isEditing
+                                            ? formData.is_admin
+                                            : member.is_admin
+                                    }
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            is_admin: e.target.checked,
+                                        })
+                                    }
+                                    disabled={!isEditing}
+                                />
+                            }
+                        />
+                        <FormControlLabel
+                            label="Show Realtime Clockins"
+                            control={
+                                <Checkbox
+                                    checked={
+                                        isEditing
+                                            ? formData.show_realtime_clockins
+                                            : member.show_realtime_clockins
+                                    }
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            show_realtime_clockins:
+                                                e.target.checked,
+                                        })
+                                    }
+                                    disabled={!isEditing}
+                                />
+                            }
+                        />
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.5,
+                            }}
+                        >
+                            <label>Last Clock In</label>
+                            <Typography variant="h6">
+                                {member.latest_event?.clock_in
+                                    ? new Date(
+                                          member.latest_event.clock_in
+                                      ).toLocaleString()
+                                    : "Never"}
+                            </Typography>
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.5,
+                            }}
+                        >
+                            <label>Status</label>
+                            <MemberStatusChip active={member.active} />
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 0.5,
+                            }}
+                        >
+                            <label>Total Hours</label>
+                            <Typography variant="h4" color="primary">
+                                {member.total_hours}
+                            </Typography>
+                        </Box>
+                    </Stack>
+                </CardContent>
+            </Card>
+        </Grid>
+    );
+}

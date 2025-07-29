@@ -1,6 +1,5 @@
 import {
     Box,
-    Chip,
     Paper,
     Table,
     TableBody,
@@ -11,9 +10,10 @@ import {
     Typography,
 } from "@mui/material";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import RealtimeClockinModal from "../components/RealtimeClockinModal";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../convex/_generated/api";
+import MemberStatusChip from "../components/MemberStatusChip";
+import RealtimeClockinModal from "../components/RealtimeClockinModal";
 
 export default function HomePage() {
     const teamMembers = useQuery(api.team_member.list);
@@ -66,18 +66,8 @@ export default function HomePage() {
                                             : "Never"}
                                     </TableCell>
                                     <TableCell align="right">
-                                        <Chip
-                                            sx={{ width: 150 }}
-                                            label={
-                                                member.active
-                                                    ? "Active"
-                                                    : "Inactive"
-                                            }
-                                            color={
-                                                member.active
-                                                    ? "success"
-                                                    : undefined
-                                            }
+                                        <MemberStatusChip
+                                            active={member.active}
                                         />
                                     </TableCell>
                                 </TableRow>

@@ -1,12 +1,60 @@
-import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { v } from "convex/values";
+import { Doc } from "./_generated/dataModel";
+import { mutation, query, QueryCtx } from "./_generated/server";
+
+const enrichMember = async (ctx: QueryCtx, member: Doc<"team_member">) => {
+  const events = await ctx.db
+    .query("timeclock_event")
+    .withIndex("by_member_id_clock_in", (q) => q.eq("member_id", member._id))
+    .order("desc")
+    .collect()
+
+  const latest_event = events[0] || null;
+  const active = latest_event && !latest_event.clock_out 
+  const total_hours = events.reduce((acc, event) => {
+    if (event.clock_in && event.clock_out) {
+      return acc + (event.clock_out - event.clock_in) / 3600000.0 // Convert ms to hours
+    }
+    return acc
+  }, 0.0)
+
+  return {
+    ...member,
+    events,
+    latest_event,
+    active,
+    total_hours: total_hours.toFixed(2)
+  }
+}
 
 export const getMember = query({
   args: {member_id: v.id("team_member")},
   handler: async (ctx, { member_id }) => {
-    return ctx.db.get(member_id);
+    const member = await ctx.db.get(member_id);
+    if (!member) return member;
+    return enrichMember(ctx, member);
   },
+})
+
+export const updateMember = mutation({
+  args: {
+    member_id: v.id("team_member"),
+    display_name: v.optional(v.string()),
+    nfc_id: v.optional(v.string()),
+    is_student: v.optional(v.boolean()),
+    is_admin: v.optional(v.boolean()),
+    show_realtime_clockins: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    return ctx.db.patch(args.member_id, {
+      display_name: args.display_name,
+      nfc_id: args.nfc_id,
+      is_student: args.is_student,
+      is_admin: args.is_admin,
+      show_realtime_clockins: args.show_realtime_clockins,
+    });
+  }
 })
 
 export const createMember = mutation({
@@ -58,28 +106,7 @@ export const list = query({
 
     const enriched = await Promise.all(
       members.map(async (member) => {
-        const events = await ctx.db
-          .query("timeclock_event")
-          .withIndex("by_member_id_clock_in", (q) => q.eq("member_id", member._id))
-          .order("desc")
-          .collect()
-
-        const latest_event = events[0] || null;
-        const active = latest_event && !latest_event.clock_out 
-        const total_hours = events.reduce((acc, event) => {
-          if (event.clock_in && event.clock_out) {
-            return acc + (event.clock_out - event.clock_in) / 3600000.0 // Convert ms to hours
-          }
-          return acc
-        }, 0.0)
-
-        return {
-          ...member,
-          events,
-          latest_event,
-          active,
-          total_hours: total_hours.toFixed(2)
-        }
+        return enrichMember(ctx, member)
       })
     )
 

@@ -9,8 +9,8 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { useQuery, useMutation } from "convex/react";
-import { useState, FormEvent } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { FormEvent, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 
@@ -69,7 +69,7 @@ export default function CreateUserPage() {
                     >
                         <label>Display Name *</label>
                         <TextField
-                            name="nfc_id"
+                            name="display_name"
                             value={formData.display_name}
                             onChange={(e) =>
                                 setFormData({
@@ -130,7 +130,7 @@ export default function CreateUserPage() {
                         label="Is Student"
                         control={
                             <Checkbox
-                                value={formData.is_student}
+                                checked={formData.is_student}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
@@ -144,7 +144,7 @@ export default function CreateUserPage() {
                         label="Is Admin"
                         control={
                             <Checkbox
-                                value={formData.is_admin}
+                                checked={formData.is_admin}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
@@ -158,7 +158,7 @@ export default function CreateUserPage() {
                         label="Show Realtime Clockins"
                         control={
                             <Checkbox
-                                value={formData.show_realtime_clockins}
+                                checked={formData.show_realtime_clockins}
                                 onChange={(e) =>
                                     setFormData({
                                         ...formData,
