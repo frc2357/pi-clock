@@ -18,6 +18,7 @@ import type * as http from "../http.js";
 import type * as recordTimeclockEvent from "../recordTimeclockEvent.js";
 import type * as team_member from "../team_member.js";
 import type * as timeclock_event from "../timeclock_event.js";
+import type * as utils from "../utils.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   recordTimeclockEvent: typeof recordTimeclockEvent;
   team_member: typeof team_member;
   timeclock_event: typeof timeclock_event;
+  utils: typeof utils;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import MemberInfoForm from "../components/MemberInfoForm";
+import MemberEventTable from "../components/MemberEventTable";
 
 export default function MemberPage() {
     const { member_id } = useParams();
@@ -107,6 +108,7 @@ export default function MemberPage() {
 
             <Grid container spacing={4}>
                 <MemberInfoForm member={member} />
+                <MemberEventTable member_id={member._id} />
             </Grid>
         </Stack>
     );

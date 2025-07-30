@@ -4,6 +4,7 @@ import {
     Card,
     CardContent,
     Checkbox,
+    CircularProgress,
     FormControlLabel,
     Grid,
     Stack,
@@ -41,7 +42,17 @@ export default function MemberEditForm({
     });
 
     if (!member) {
-        return null;
+        return (
+            <Grid size={{ xs: 12, lg: 4 }}>
+                <Card sx={{ borderRadius: 3 }}>
+                    <CardContent
+                        sx={{ display: "flex", justifyContent: "center" }}
+                    >
+                        <CircularProgress size={100} />
+                    </CardContent>
+                </Card>
+            </Grid>
+        );
     }
 
     const handleEdit = () => {
@@ -73,7 +84,7 @@ export default function MemberEditForm({
         <Grid size={{ xs: 12, lg: 4 }}>
             <Card sx={{ borderRadius: 3 }}>
                 <CardContent>
-                    <Stack spacing={2}>
+                    <Stack spacing={1.5}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -130,6 +141,7 @@ export default function MemberEditForm({
                                     })
                                 }
                                 disabled={!isEditing}
+                                size="small"
                                 fullWidth
                                 required
                             />
@@ -154,6 +166,7 @@ export default function MemberEditForm({
                                     })
                                 }
                                 disabled={!isEditing}
+                                size="small"
                                 fullWidth
                                 required
                             />

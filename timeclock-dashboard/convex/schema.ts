@@ -24,5 +24,6 @@ export default defineSchema({
     })
         .index("by_member_id", ["member_id"])
         .index("by_member_id_clock_in", ["member_id", "clock_in"])
+        .index("by_clock_in", ["clock_in"])
 
 });
