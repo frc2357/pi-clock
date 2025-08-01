@@ -12,8 +12,11 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import MemberInfoForm from "../components/MemberInfoForm";
 import MemberEventTable from "../components/MemberEventTable";
+import useCustomStyles from "../useCustomStyles";
 
 export default function MemberPage() {
+    const { pagePadding } = useCustomStyles();
+
     const { member_id } = useParams();
     const member = useQuery(api.team_member.getMember, {
         member_id: member_id as Id<"team_member">,
@@ -74,18 +77,19 @@ export default function MemberPage() {
 
     return (
         <Stack
-            spacing={4}
-            sx={{ padding: 8, paddingY: 12, height: "100%", width: "100%" }}
+            spacing={pagePadding.padding}
+            sx={{ ...pagePadding, width: "100%" }}
         >
             <Box
                 sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    padding: pagePadding.padding,
                 }}
             >
                 <Typography variant="h4">{member.display_name}</Typography>
-                <Stack direction="row" spacing={2}>
+                <Stack direction="row" spacing={pagePadding.padding}>
                     {member.active ? (
                         <Button
                             variant="contained"
@@ -106,7 +110,7 @@ export default function MemberPage() {
                 </Stack>
             </Box>
 
-            <Grid container spacing={4}>
+            <Grid container spacing={pagePadding.padding}>
                 <MemberInfoForm member={member} />
                 <MemberEventTable member_id={member._id} />
             </Grid>

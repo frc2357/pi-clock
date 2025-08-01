@@ -14,9 +14,11 @@ import {
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { FunctionReturnType, WithoutSystemFields } from "convex/server";
+import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
+import InputContainer from "./InputContainer";
 import MemberStatusChip from "./MemberStatusChip";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -43,7 +45,7 @@ export default function MemberEditForm({
 
     if (!member) {
         return (
-            <Grid size={{ xs: 12, lg: 4 }}>
+            <Grid size={{ xs: 12, md: 4 }}>
                 <Card sx={{ borderRadius: 3 }}>
                     <CardContent
                         sx={{ display: "flex", justifyContent: "center" }}
@@ -81,7 +83,7 @@ export default function MemberEditForm({
     };
 
     return (
-        <Grid size={{ xs: 12, lg: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
             <Card sx={{ borderRadius: 3 }}>
                 <CardContent>
                     <Stack spacing={1.5}>
@@ -119,14 +121,7 @@ export default function MemberEditForm({
                                     </Button>
                                 ))}
                         </Box>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 0.5,
-                            }}
-                        >
-                            <label>Display Name</label>
+                        <InputContainer label="Display Name">
                             <TextField
                                 name="display_name"
                                 value={
@@ -145,15 +140,8 @@ export default function MemberEditForm({
                                 fullWidth
                                 required
                             />
-                        </Box>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 0.5,
-                            }}
-                        >
-                            <label>NFC ID</label>
+                        </InputContainer>
+                        <InputContainer label="NFC ID">
                             <TextField
                                 name="nfc_id"
                                 value={
@@ -170,7 +158,7 @@ export default function MemberEditForm({
                                 fullWidth
                                 required
                             />
-                        </Box>
+                        </InputContainer>
                         <FormControlLabel
                             label="Is Student"
                             control={
@@ -229,44 +217,26 @@ export default function MemberEditForm({
                                 />
                             }
                         />
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 0.5,
-                            }}
-                        >
-                            <label>Last Clock In</label>
+                        <InputContainer label="Last Clock In">
                             <Typography variant="h6">
                                 {member.latest_event?.clock_in
-                                    ? new Date(
-                                          member.latest_event.clock_in
-                                      ).toLocaleString()
-                                    : "Never"}
+                                    ? format(
+                                          new Date(
+                                              member.latest_event?.clock_in
+                                          ),
+                                          "MM/dd/yy HH:MM"
+                                      )
+                                    : "--"}
                             </Typography>
-                        </Box>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 0.5,
-                            }}
-                        >
-                            <label>Status</label>
+                        </InputContainer>
+                        <InputContainer label="Status">
                             <MemberStatusChip active={member.active} />
-                        </Box>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 0.5,
-                            }}
-                        >
-                            <label>Total Hours</label>
+                        </InputContainer>
+                        <InputContainer label="Total Hours">
                             <Typography variant="h4" color="primary">
                                 {member.total_hours}
                             </Typography>
-                        </Box>
+                        </InputContainer>
                     </Stack>
                 </CardContent>
             </Card>
