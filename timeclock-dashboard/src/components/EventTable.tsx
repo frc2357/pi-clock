@@ -37,7 +37,7 @@ export default function EventTable({
                                 {event.clock_in
                                     ? format(
                                           new Date(event.clock_in),
-                                          "MM/dd/yy HH:MM"
+                                          "MM/dd/yy HH:mm"
                                       )
                                     : "--"}
                             </TableCell>
@@ -45,7 +45,7 @@ export default function EventTable({
                                 {event.clock_out
                                     ? format(
                                           new Date(event.clock_out),
-                                          "MM/dd/yy HH:MM"
+                                          "MM/dd/yy HH:mm"
                                       )
                                     : "--"}
                             </TableCell>

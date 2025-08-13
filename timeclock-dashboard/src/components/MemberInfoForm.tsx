@@ -224,7 +224,7 @@ export default function MemberEditForm({
                                           new Date(
                                               member.latest_event?.clock_in
                                           ),
-                                          "MM/dd/yy HH:MM"
+                                          "MM/dd/yy HH:mm"
                                       )
                                     : "--"}
                             </Typography>
