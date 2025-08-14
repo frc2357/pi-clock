@@ -59,6 +59,7 @@ export default function CreateUserPage() {
                         borderRadius: 3,
                         display: "flex",
                         flexDirection: "column",
+                        maxWidth: "800px",
                         width: "100%",
                     }}
                 >

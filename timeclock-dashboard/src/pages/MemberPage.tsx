@@ -22,6 +22,8 @@ export default function MemberPage() {
         member_id: member_id as Id<"team_member">,
     });
 
+    const loggedInMember = useQuery(api.team_member.getLoggedInMember);
+
     const clockIn = useMutation(api.timeclock_event.clockIn);
     const clockOut = useMutation(api.timeclock_event.clockOut);
     const handleClockIn = async () => {
@@ -95,6 +97,7 @@ export default function MemberPage() {
                             variant="contained"
                             color="error"
                             onClick={handleClockOut}
+                            disabled={loggedInMember?._id !== member._id}
                         >
                             Clock Out
                         </Button>
@@ -103,6 +106,7 @@ export default function MemberPage() {
                             variant="contained"
                             color="success"
                             onClick={handleClockIn}
+                            disabled={loggedInMember?._id !== member._id}
                         >
                             Clock In
                         </Button>

@@ -148,7 +148,14 @@ export default function Navbar() {
                                     gap: 2,
                                 }}
                             >
-                                <Typography variant="h6">
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                    }}
+                                >
                                     {loggedInMember?.display_name}
                                 </Typography>
                                 <Button
