@@ -6,20 +6,19 @@ on:
       - main
     paths:
       - "timeclock-dashboard/**"
+      - ".github/workflows/deploy-timeclock-dashboard.yaml"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Configure AWS credentials from OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -27,10 +26,23 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: timeclock-dashboard
         run: npm ci
 
       - name: Build
+        working-directory: timeclock-dashboard
         run: npm run build
+        env:
+          VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
+
+      - name: Configure AWS credentials from OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
 
       - name: Sync to S3
-        run: aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+        working-directory: timeclock-dashboard
+        run: |
+          aws sts get-caller-identity
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
