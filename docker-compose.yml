@@ -1,8 +1,6 @@
-version: "2"
-
 services:
-  python-nfc-pi-clock:
-    build: ./python-nfc-pi-clock
+  badge-reader:
+    build: ./badge-reader
     restart: on-failure
     environment:
       - TZ=$TZ
