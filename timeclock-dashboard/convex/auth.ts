@@ -25,7 +25,7 @@ export const getUsersWithoutMember = query({
       users.map(async (user) => {
         const members = await ctx.db
           .query("team_member")
-          .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
+          .withIndex("by_user_id_deleted_at", (q) => q.eq("user_id", user._id).eq("deleted_at", undefined))
           .collect()
         return members.length === 0 ? user : null;
       })

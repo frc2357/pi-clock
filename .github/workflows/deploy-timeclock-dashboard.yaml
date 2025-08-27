@@ -7,6 +7,7 @@ on:
     paths:
       - "timeclock-dashboard/**"
       - ".github/workflows/deploy-timeclock-dashboard.yaml"
+  workflow_dispatch:
 
 jobs:
   build:

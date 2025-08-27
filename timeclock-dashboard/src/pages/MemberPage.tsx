@@ -106,7 +106,10 @@ export default function MemberPage() {
                             variant="contained"
                             color="success"
                             onClick={handleClockIn}
-                            disabled={loggedInMember?._id !== member._id}
+                            disabled={
+                                loggedInMember?._id !== member._id ||
+                                !!member.deleted_at
+                            }
                         >
                             Clock In
                         </Button>

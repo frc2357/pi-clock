@@ -10,6 +10,8 @@ import {
     Stack,
     TextField,
     Typography,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import { Doc } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
@@ -30,8 +32,14 @@ export default function MemberEditForm({
 }: {
     member: FunctionReturnType<typeof api.team_member.getMember>;
 }) {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const loggedInMember = useQuery(api.team_member.getLoggedInMember);
     const updateMember = useMutation(api.team_member.updateMember);
+    const toggleMemberActivation = useMutation(
+        api.team_member.toggleMemberActivation
+    );
 
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<FormData>({
@@ -39,7 +47,6 @@ export default function MemberEditForm({
         nfc_id: "",
         is_student: false,
         is_admin: false,
-        show_realtime_clockins: false,
         deleted_at: undefined,
     });
 
@@ -63,10 +70,13 @@ export default function MemberEditForm({
             nfc_id: member.nfc_id || "",
             is_student: member.is_student || false,
             is_admin: member.is_admin || false,
-            show_realtime_clockins: member.show_realtime_clockins || false,
             deleted_at: member.deleted_at || undefined,
         });
         setIsEditing(true);
+    };
+
+    const handleToggleMemberActivation = () => {
+        toggleMemberActivation({ member_id: member._id });
     };
 
     const handleSave = async () => {
@@ -91,7 +101,7 @@ export default function MemberEditForm({
                             sx={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                alignItems: "center",
+                                alignItems: "start",
                             }}
                         >
                             <Typography variant="h6">
@@ -116,9 +126,37 @@ export default function MemberEditForm({
                                         </Button>
                                     </Stack>
                                 ) : (
-                                    <Button size="small" onClick={handleEdit}>
-                                        Edit
-                                    </Button>
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            flexDirection: isMobile
+                                                ? "column"
+                                                : "row",
+                                            alignItems: "end",
+                                        }}
+                                    >
+                                        <Button
+                                            size="small"
+                                            onClick={handleEdit}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            color={
+                                                member.deleted_at
+                                                    ? "success"
+                                                    : "error"
+                                            }
+                                            size="small"
+                                            onClick={
+                                                handleToggleMemberActivation
+                                            }
+                                        >
+                                            {member.deleted_at
+                                                ? "Reactivate"
+                                                : "Deactivate"}
+                                        </Button>
+                                    </Box>
                                 ))}
                         </Box>
                         <InputContainer label="Display Name">
@@ -191,26 +229,6 @@ export default function MemberEditForm({
                                         setFormData({
                                             ...formData,
                                             is_admin: e.target.checked,
-                                        })
-                                    }
-                                    disabled={!isEditing}
-                                />
-                            }
-                        />
-                        <FormControlLabel
-                            label="Show Realtime Clockins"
-                            control={
-                                <Checkbox
-                                    checked={
-                                        isEditing
-                                            ? formData.show_realtime_clockins
-                                            : member.show_realtime_clockins
-                                    }
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            show_realtime_clockins:
-                                                e.target.checked,
                                         })
                                     }
                                     disabled={!isEditing}

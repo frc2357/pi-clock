@@ -28,6 +28,7 @@ const enrichMember = async (ctx: QueryCtx, member: Doc<"team_member">) => {
     return {
         ...member,
         events,
+        latest_clock_in: latest_event?.clock_in || null,
         latest_event,
         active,
         total_hours: total_hours.toFixed(2),
@@ -43,6 +44,24 @@ export const getMember = query({
     },
 });
 
+export const toggleMemberActivation = mutation({
+    args: {
+        member_id: v.id("team_member"),
+    },
+    handler: async (ctx, args) => {
+        const member = await ctx.db.get(args.member_id);
+        if (member?.deleted_at) {
+            return ctx.db.patch(args.member_id, {
+                deleted_at: undefined,
+            });
+        } else {
+            return ctx.db.patch(args.member_id, {
+                deleted_at: Date.now(),
+            });
+        }
+    }
+})
+
 export const updateMember = mutation({
     args: {
         member_id: v.id("team_member"),
@@ -50,7 +69,6 @@ export const updateMember = mutation({
         nfc_id: v.optional(v.string()),
         is_student: v.optional(v.boolean()),
         is_admin: v.optional(v.boolean()),
-        show_realtime_clockins: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
         return ctx.db.patch(args.member_id, {
@@ -58,7 +76,6 @@ export const updateMember = mutation({
             nfc_id: args.nfc_id,
             is_student: args.is_student,
             is_admin: args.is_admin,
-            show_realtime_clockins: args.show_realtime_clockins,
         });
     },
 });
@@ -70,7 +87,6 @@ export const createMember = mutation({
         nfc_id: v.string(),
         is_student: v.boolean(),
         is_admin: v.boolean(),
-        show_realtime_clockins: v.boolean(),
     },
     handler: async (ctx, args) => {
         const existingMember = await ctx.db
@@ -107,7 +123,6 @@ export const list = query({
     handler: async (ctx) => {
         const members = await ctx.db
             .query("team_member")
-            .withIndex("by_deleted_at", (q) => q.eq("deleted_at", undefined))
             .collect();
 
         return Promise.all(

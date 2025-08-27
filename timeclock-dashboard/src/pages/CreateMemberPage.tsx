@@ -23,7 +23,6 @@ const defaultMemberData = {
     nfc_id: "",
     is_student: false,
     is_admin: false,
-    show_realtime_clockins: false,
 };
 
 export default function CreateUserPage() {
@@ -138,21 +137,6 @@ export default function CreateUserPage() {
                                         setFormData({
                                             ...formData,
                                             is_admin: e.target.checked,
-                                        })
-                                    }
-                                />
-                            }
-                        />
-                        <FormControlLabel
-                            label="Show Realtime Clockins"
-                            control={
-                                <Checkbox
-                                    checked={formData.show_realtime_clockins}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            show_realtime_clockins:
-                                                e.target.checked,
                                         })
                                     }
                                 />
