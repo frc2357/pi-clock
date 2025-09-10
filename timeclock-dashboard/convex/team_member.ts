@@ -59,8 +59,8 @@ export const toggleMemberActivation = mutation({
                 deleted_at: Date.now(),
             });
         }
-    }
-})
+    },
+});
 
 export const updateMember = mutation({
     args: {
@@ -82,20 +82,22 @@ export const updateMember = mutation({
 
 export const createMember = mutation({
     args: {
-        user_id: v.id("users"),
+        user_id: v.optional(v.id("users")),
         display_name: v.string(),
         nfc_id: v.string(),
         is_student: v.boolean(),
         is_admin: v.boolean(),
     },
     handler: async (ctx, args) => {
-        const existingMember = await ctx.db
-            .query("team_member")
-            .withIndex("by_user_id", (q) => q.eq("user_id", args.user_id))
-            .first();
+        if (args.user_id) {
+            const existingMember = await ctx.db
+                .query("team_member")
+                .withIndex("by_user_id", (q) => q.eq("user_id", args.user_id))
+                .first();
 
-        if (existingMember) {
-            throw new Error("Member already exists for this user.");
+            if (existingMember) {
+                throw new Error("Member already exists for this user.");
+            }
         }
 
         const memberId = await ctx.db.insert("team_member", args);
@@ -121,9 +123,7 @@ export const getLoggedInMember = query({
 export const list = query({
     args: {},
     handler: async (ctx) => {
-        const members = await ctx.db
-            .query("team_member")
-            .collect();
+        const members = await ctx.db.query("team_member").collect();
 
         return Promise.all(
             members.map(async (member) => enrichMember(ctx, member))
@@ -132,16 +132,16 @@ export const list = query({
 });
 
 export const getByNfcId = query({
-  args: { nfc_id: v.string()},
-  handler: async (ctx, { nfc_id }) => {
-    const member = await ctx.db
-      .query("team_member")
-      .withIndex("by_nfc_id", (q) => q.eq("nfc_id", nfc_id))
-      .first()
+    args: { nfc_id: v.string() },
+    handler: async (ctx, { nfc_id }) => {
+        const member = await ctx.db
+            .query("team_member")
+            .withIndex("by_nfc_id", (q) => q.eq("nfc_id", nfc_id))
+            .first();
 
-    return member
-  }
-})
+        return member;
+    },
+});
 
 export const getLatestEvent = query({
     args: { member_id: v.id("team_member") },

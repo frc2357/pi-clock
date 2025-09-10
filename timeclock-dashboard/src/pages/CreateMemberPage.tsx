@@ -18,7 +18,7 @@ import InputContainer from "../components/InputContainer";
 import useCustomStyles from "../useCustomStyles";
 
 const defaultMemberData = {
-    user_id: "" as Id<"users">,
+    user_id: undefined as Id<"users"> | undefined,
     display_name: "",
     nfc_id: "",
     is_student: false,
@@ -92,7 +92,6 @@ export default function CreateUserPage() {
                                         user_id: e.target.value as Id<"users">,
                                     })
                                 }
-                                required
                             >
                                 {memberlessUsers?.map((user) => (
                                     <MenuItem value={user._id}>
