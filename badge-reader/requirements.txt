@@ -1,0 +1,8 @@
+python-dotenv
+requests
+apscheduler
+sysv_ipc==1.0.1
+setuptools==58.0.4
+adafruit-circuitpython-pn532
+smbus2
+RPLCD
