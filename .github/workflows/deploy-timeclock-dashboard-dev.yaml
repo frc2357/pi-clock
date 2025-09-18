@@ -1,4 +1,4 @@
-name: Deploy Timeclock Dashboard
+name: Deploy Timeclock Dashboard Dev
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     permissions:
@@ -30,11 +30,17 @@ jobs:
         working-directory: timeclock-dashboard
         run: npm ci
 
+      - name: Deploy Convex to Dev
+        working-directory: timeclock-dashboard
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.DEV_CONVEX_DEPLOY_KEY }}
+        run: npx convex deploy
+
       - name: Build
         working-directory: timeclock-dashboard
         run: npm run build
         env:
-          VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
+          VITE_CONVEX_URL: ${{ secrets.DEV_VITE_CONVEX_URL }}
 
       - name: Configure AWS credentials from OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,4 +52,4 @@ jobs:
         working-directory: timeclock-dashboard
         run: |
           aws sts get-caller-identity
-          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+          aws s3 sync dist/ s3://${{ secrets.DEV_S3_BUCKET_NAME }} --delete

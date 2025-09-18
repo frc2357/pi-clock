@@ -1,0 +1,55 @@
+name: Deploy Timeclock Dashboard Prod
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "timeclock-dashboard/**"
+      - ".github/workflows/deploy-timeclock-dashboard.yaml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: timeclock-dashboard
+        run: npm ci
+
+      - name: Deploy Convex to Production
+        working-directory: timeclock-dashboard
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.PROD_CONVEX_DEPLOY_KEY }}
+        run: npx convex deploy
+
+      - name: Build
+        working-directory: timeclock-dashboard
+        run: npm run build
+        env:
+          VITE_CONVEX_URL: ${{ secrets.PROD_VITE_CONVEX_URL }}
+
+      - name: Configure AWS credentials from OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - name: Sync to S3
+        working-directory: timeclock-dashboard
+        run: |
+          aws sts get-caller-identity
+          aws s3 sync dist/ s3://${{ secrets.PROD_S3_BUCKET_NAME }} --delete
