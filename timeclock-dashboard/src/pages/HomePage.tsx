@@ -65,7 +65,7 @@ export default function HomePage() {
     const navigate = useNavigate();
 
     const handleSortRequest = (property: keyof MemberType) => {
-        const isAsc = orderBy === property && direction === "asc";
+        const isAsc = orderBy === property && direction === "desc";
         setDirection(isAsc ? "asc" : "desc");
         setOrderBy(property);
     };
