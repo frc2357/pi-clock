@@ -16,6 +16,20 @@ const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     };
 };
 
+export const createEvent = mutation({
+    args: {
+        member_id: v.id("team_member"),
+        clock_in: v.optional(v.number()),
+        clock_out: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        console.log(args);
+        const eventId = await ctx.db.insert("timeclock_event", args);
+
+        return await ctx.db.get(eventId);
+    },
+});
+
 export const clockOut = mutation({
     args: { event_id: v.id("timeclock_event"), clock_out: v.number() },
     handler: async (ctx, args) => {
@@ -30,9 +44,8 @@ export const clockIn = mutation({
             member_id: args.member_id,
             clock_in: args.clock_in,
         });
-        const event = await ctx.db.get(eventId);
 
-        return event;
+        return await ctx.db.get(eventId);
     },
 });
 
@@ -100,5 +113,24 @@ export const list = query({
         return Promise.all(
             filtered.map(async (event) => enrichEvent(ctx, event))
         );
+    },
+});
+
+export const updateEvent = mutation({
+    args: {
+        id: v.id("timeclock_event"),
+        clock_in: v.number(),
+        clock_out: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const { id, clock_in, clock_out } = args;
+        await ctx.db.patch(id, { clock_in, clock_out });
+    },
+});
+
+export const deleteEvent = mutation({
+    args: { id: v.id("timeclock_event") },
+    handler: async (ctx, args) => {
+        await ctx.db.delete(args.id);
     },
 });
