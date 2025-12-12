@@ -1,10 +1,15 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, QueryCtx } from "./_generated/server";
 import { isClockInOutdated } from "./utils";
+import { filterEventsBySeason } from "./utils";
 
-const enrichMember = async (ctx: QueryCtx, member: Doc<"team_member">) => {
+const enrichMember = async (
+    ctx: QueryCtx,
+    member: Doc<"team_member">,
+    season_id: Id<"frc_season"> | undefined = undefined
+) => {
     const events = await ctx.db
         .query("timeclock_event")
         .withIndex("by_member_id_clock_in", (q) =>
@@ -13,12 +18,14 @@ const enrichMember = async (ctx: QueryCtx, member: Doc<"team_member">) => {
         .order("desc")
         .collect();
 
-    const latest_event = events[0] || null;
+    const filteredEvents = await filterEventsBySeason(ctx, events, season_id);
+
+    const latest_event = filteredEvents[0] || null;
     const active =
         latest_event &&
         !latest_event.clock_out &&
         !isClockInOutdated(latest_event.clock_in!, Date.now());
-    const total_hours = events.reduce((acc, event) => {
+    const total_hours = filteredEvents.reduce((acc, event) => {
         if (event.clock_in && event.clock_out) {
             return acc + (event.clock_out - event.clock_in) / 3600000.0; // Convert ms to hours
         }
@@ -27,7 +34,7 @@ const enrichMember = async (ctx: QueryCtx, member: Doc<"team_member">) => {
 
     return {
         ...member,
-        events,
+        events: filteredEvents,
         latest_clock_in: latest_event?.clock_in || null,
         latest_event,
         active,
@@ -36,11 +43,14 @@ const enrichMember = async (ctx: QueryCtx, member: Doc<"team_member">) => {
 };
 
 export const getMember = query({
-    args: { member_id: v.id("team_member") },
-    handler: async (ctx, { member_id }) => {
+    args: {
+        member_id: v.id("team_member"),
+        season_id: v.optional(v.id("frc_season")),
+    },
+    handler: async (ctx, { member_id, season_id }) => {
         const member = await ctx.db.get(member_id);
         if (!member) return member;
-        return enrichMember(ctx, member);
+        return enrichMember(ctx, member, season_id);
     },
 });
 
@@ -106,8 +116,10 @@ export const createMember = mutation({
 });
 
 export const getLoggedInMember = query({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        season_id: v.optional(v.id("frc_season")),
+    },
+    handler: async (ctx, { season_id }) => {
         const loggedInUserId = await getAuthUserId(ctx);
         if (!loggedInUserId) return null;
         const loggedInUser = await ctx.db.get(loggedInUserId);
@@ -118,17 +130,20 @@ export const getLoggedInMember = query({
             .withIndex("by_user_id", (q) => q.eq("user_id", loggedInUser?._id))
             .first();
         if (!member) return member;
-        return enrichMember(ctx, member);
+        return enrichMember(ctx, member, season_id);
     },
 });
 
 export const list = query({
-    args: {},
-    handler: async (ctx) => {
+    args: {
+        season_id: v.optional(v.id("frc_season")),
+    },
+    handler: async (ctx, { season_id }) => {
+        console.log("team_member.list", season_id);
         const members = await ctx.db.query("team_member").collect();
 
         return Promise.all(
-            members.map(async (member) => enrichMember(ctx, member))
+            members.map(async (member) => enrichMember(ctx, member, season_id))
         );
     },
 });
@@ -146,14 +161,25 @@ export const getByNfcId = query({
 });
 
 export const getLatestEvent = query({
-    args: { member_id: v.id("team_member") },
-    handler: async (ctx, { member_id }) => {
-        return ctx.db
+    args: {
+        member_id: v.id("team_member"),
+        season_id: v.optional(v.id("frc_season")),
+    },
+    handler: async (ctx, { member_id, season_id }) => {
+        const events = await ctx.db
             .query("timeclock_event")
             .withIndex("by_member_id_clock_in", (q) =>
                 q.eq("member_id", member_id)
             )
             .order("desc")
-            .first();
+            .collect();
+
+        const filteredEvents = await filterEventsBySeason(
+            ctx,
+            events,
+            season_id
+        );
+
+        return filteredEvents[0];
     },
 });

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { Doc } from "./_generated/dataModel";
 import { mutation, query, QueryCtx } from "./_generated/server";
+import { filterEventsBySeason } from "./utils";
 
 const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     const member = await ctx.db.get(event.member_id);
@@ -11,7 +12,7 @@ const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     return {
         ...event,
         member,
-        duration_hours: duration_hours?.toFixed(3)
+        duration_hours: duration_hours?.toFixed(3),
     };
 };
 
@@ -36,18 +37,30 @@ export const clockIn = mutation({
 });
 
 export const latestEventWithMember = query({
-    handler: async (ctx) => {
-        const latestEvent = await ctx.db
+    args: { season_id: v.optional(v.id("frc_season")) },
+    handler: async (ctx, args) => {
+        const events = await ctx.db
             .query("timeclock_event")
             .order("desc")
-            .first();
+            .collect();
+
+        const filtered = await filterEventsBySeason(
+            ctx,
+            events,
+            args.season_id
+        );
+
+        const latestEvent = filtered?.[0];
         if (!latestEvent) return null;
         return enrichEvent(ctx, latestEvent);
     },
 });
 
 export const getEventsForMember = query({
-    args: { member_id: v.id("team_member") },
+    args: {
+        member_id: v.id("team_member"),
+        season_id: v.optional(v.id("frc_season")),
+    },
     handler: async (ctx, args) => {
         const events = await ctx.db
             .query("timeclock_event")
@@ -57,22 +70,35 @@ export const getEventsForMember = query({
             .order("desc")
             .collect();
 
+        const filtered = await filterEventsBySeason(
+            ctx,
+            events,
+            args.season_id
+        );
+
         return Promise.all(
-            events.map(async (event) => enrichEvent(ctx, event))
+            filtered.map(async (event) => enrichEvent(ctx, event))
         );
     },
 });
 
 export const list = query({
-    handler: async (ctx) => {
+    args: { season_id: v.optional(v.id("frc_season")) },
+    handler: async (ctx, args) => {
         const events = await ctx.db
             .query("timeclock_event")
             .withIndex("by_clock_in")
             .order("desc")
             .collect();
 
+        const filtered = await filterEventsBySeason(
+            ctx,
+            events,
+            args.season_id
+        );
+
         return Promise.all(
-            events.map(async (event) => enrichEvent(ctx, event))
+            filtered.map(async (event) => enrichEvent(ctx, event))
         );
     },
 });

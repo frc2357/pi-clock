@@ -2,7 +2,7 @@ import { api } from "../../convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 
 export default function useTriggerEvent() {
-    const loggedInMember = useQuery(api.team_member.getLoggedInMember);
+    const loggedInMember = useQuery(api.team_member.getLoggedInMember, {});
     const memberClockedIn = loggedInMember?.active;
 
     const clockIn = useMutation(api.timeclock_event.clockIn);

@@ -61,7 +61,7 @@ export default function HomePage() {
         "active" as keyof MemberType
     );
 
-    const teamMembers = useQuery(api.team_member.list);
+    const teamMembers = useQuery(api.team_member.list, {});
     const navigate = useNavigate();
 
     const handleSortRequest = (property: keyof MemberType) => {
