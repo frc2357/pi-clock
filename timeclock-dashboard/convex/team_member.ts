@@ -113,10 +113,12 @@ export const getLoggedInMember = query({
         const loggedInUser = await ctx.db.get(loggedInUserId);
         if (!loggedInUser) return null;
 
-        return ctx.db
+        const member = await ctx.db
             .query("team_member")
             .withIndex("by_user_id", (q) => q.eq("user_id", loggedInUser?._id))
             .first();
+        if (!member) return member;
+        return enrichMember(ctx, member);
     },
 });
 

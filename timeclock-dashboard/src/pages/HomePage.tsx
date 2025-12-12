@@ -93,7 +93,7 @@ export default function HomePage() {
     return (
         <Box sx={pagePadding}>
             <Typography variant="h3" sx={{ padding: pagePadding.padding }}>
-                Team Dashboard
+                Member Dashboard
             </Typography>
             <Box
                 sx={{

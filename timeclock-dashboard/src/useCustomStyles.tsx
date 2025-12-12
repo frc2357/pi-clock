@@ -9,11 +9,11 @@ export default function useCustomStyles() {
     const pagePadding = isMdUp
         ? {
               padding: "16px",
-              paddingTop: "80px",
+              paddingTop: "64px",
           }
         : {
               padding: "8px",
-              paddingTop: "72px",
+              paddingTop: "56px",
           };
 
     return { tableSize, pagePadding };
