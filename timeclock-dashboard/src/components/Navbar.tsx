@@ -1,3 +1,4 @@
+import { useSeasonStore } from "@/store/season";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
     AppBar,
@@ -5,7 +6,9 @@ import {
     Button,
     Divider,
     Drawer,
+    FormControl,
     IconButton,
+    InputLabel,
     Link,
     ListItem,
     ListItemButton,
@@ -13,13 +16,17 @@ import {
     Menu,
     MenuItem,
     MenuList,
+    Select,
     Toolbar,
     Typography,
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import { MouseEvent, useState } from "react";
+import { Id } from "convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { MouseEvent, useEffect, useState } from "react";
 import { To, useNavigate } from "react-router-dom";
+import { api } from "../../convex/_generated/api";
 import logo from "../assets/logo.png";
 import useTriggerEvent from "../hooks/useTriggerEvent";
 
@@ -29,10 +36,43 @@ export default function Navbar() {
     const { loggedInMember, memberClockedIn, handleClockIn, handleClockOut } =
         useTriggerEvent();
 
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const allSeasons = useQuery(api.frc_season.list);
+    const currentSeason = useQuery(api.frc_season.currentSeason);
+    const { selectedSeasonId, setSelectedSeasonId } = useSeasonStore();
 
+    useEffect(() => {
+        if (currentSeason?._id && !selectedSeasonId) {
+            setSelectedSeasonId(currentSeason?._id);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentSeason]);
+
+    const seasonDropdown = (
+        <FormControl sx={{ m: "6px", minWidth: 120 }} size="small">
+            <InputLabel
+                id="season-select-label"
+                shrink={false}
+                sx={{ display: selectedSeasonId === null ? undefined : "none" }}
+            >
+                Season
+            </InputLabel>
+            <Select
+                labelId="season-select-label"
+                id="season-select"
+                value={selectedSeasonId}
+                onChange={(e) =>
+                    setSelectedSeasonId(e.target.value as Id<"frc_season">)
+                }
+                sx={{ "& .MuiSelect-select": { padding: "6.5px" } }}
+            >
+                {allSeasons?.map((season) => (
+                    <MenuItem value={season._id}>{season.name}</MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    );
+
+    // profile
     const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(
         null
     );
@@ -90,6 +130,11 @@ export default function Navbar() {
         </Menu>
     );
 
+    // drawer
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
     const toggleDrawer = (open: boolean) => () => {
         setDrawerOpen(open);
     };
@@ -122,6 +167,7 @@ export default function Navbar() {
                 </>
             )}
             <MenuList disablePadding>
+                {seasonDropdown}
                 {loggedInMember?.is_admin && (
                     <>
                         <ListItem disablePadding>
@@ -139,9 +185,9 @@ export default function Navbar() {
                                 <ListItemText primary="Create Member" />
                             </ListItemButton>
                         </ListItem>
-                        <Divider sx={{ my: 1 }} />
                     </>
                 )}
+                <Divider sx={{ my: 1 }} />
                 {profileMenuItems}
             </MenuList>
         </Box>
@@ -185,6 +231,7 @@ export default function Navbar() {
                     ) : (
                         <Box
                             sx={{
+                                height: "100%",
                                 display: "flex",
                                 width: "100%",
                                 justifyContent: "space-between",
@@ -199,14 +246,15 @@ export default function Navbar() {
                                         marginLeft: 2,
                                         textTransform: "none",
                                         borderRadius: 2,
-                                        paddingX: 2,
+                                        paddingX: "6px",
+                                        marginY: "6px",
                                     }}
                                 >
                                     Create Member
                                 </Button>
                             )}
-                            <Box>
-                                {profileMenu}
+                            <Box sx={{ display: "flex", height: "100%" }}>
+                                {seasonDropdown}
                                 <Button
                                     size="small"
                                     sx={{
@@ -221,6 +269,7 @@ export default function Navbar() {
                                         {loggedInMember?.display_name}
                                     </Typography>
                                 </Button>
+                                {profileMenu}
                             </Box>
                         </Box>
                     )}

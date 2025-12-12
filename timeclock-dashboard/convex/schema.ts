@@ -25,4 +25,14 @@ export default defineSchema({
         .index("by_member_id", ["member_id"])
         .index("by_member_id_clock_in", ["member_id", "clock_in"])
         .index("by_clock_in", ["clock_in"]),
+
+    frc_season: defineTable({
+        name: v.string(),
+        start_date: v.number(),
+        end_date: v.number(),
+    })
+        .index("by_name", ["name"])
+        .index("by_start", ["start_date"])
+        .index("by_end", ["end_date"])
+        .index("by_start_and_end", ["start_date", "end_date"]),
 });
