@@ -52,7 +52,7 @@ export default function Navbar() {
             <InputLabel
                 id="season-select-label"
                 shrink={false}
-                sx={{ display: selectedSeasonId === null ? undefined : "none" }}
+                sx={{ display: !selectedSeasonId ? undefined : "none" }}
             >
                 Season
             </InputLabel>
@@ -202,7 +202,7 @@ export default function Navbar() {
                 >
                     <Link
                         underline="none"
-                        href="/"
+                        onClick={() => navigate("/")}
                         sx={{
                             display: "flex",
                             alignItems: "center",
@@ -241,7 +241,7 @@ export default function Navbar() {
                                 <Button
                                     variant="contained"
                                     size="small"
-                                    href="/create-member"
+                                    onClick={() => navigate("/create-member")}
                                     sx={{
                                         marginLeft: 2,
                                         textTransform: "none",
