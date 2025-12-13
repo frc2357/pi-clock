@@ -20,7 +20,7 @@ export const currentSeason = query({
         );
 
         return seasons?.find(({ start_date, end_date }) => {
-            return today >= start_date && today <= end_date;
+            return today >= start_date && today < end_date;
         });
     },
 });

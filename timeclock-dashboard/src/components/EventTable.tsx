@@ -26,7 +26,7 @@ import {
     Toolbar,
     ToolbarButton,
 } from "@mui/x-data-grid";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { FunctionReturnType } from "convex/server";
 import { format } from "date-fns";
 import { FormEvent, KeyboardEvent, useRef, useState } from "react";
@@ -170,6 +170,8 @@ export default function EventTable({ events, member_id }: EventTableProps) {
     const updateEvent = useMutation(api.timeclock_event.updateEvent);
     const deleteEvent = useMutation(api.timeclock_event.deleteEvent);
 
+    const loggedInMember = useQuery(api.team_member.getLoggedInMember, {});
+
     const rows = events?.map((event) => ({
         id: event._id,
 
@@ -227,7 +229,7 @@ export default function EventTable({ events, member_id }: EventTableProps) {
             headerName: "Clock In",
             type: "dateTime",
             flex: 1,
-            editable: true,
+            editable: loggedInMember?.is_admin,
             valueGetter: (_value, row) => row.clock_in,
             valueSetter: (value, row) => {
                 return {
@@ -243,7 +245,7 @@ export default function EventTable({ events, member_id }: EventTableProps) {
             headerName: "Clock Out",
             type: "dateTime",
             flex: 1,
-            editable: true,
+            editable: loggedInMember?.is_admin,
             valueGetter: (_value, row) => row.clock_out,
             valueSetter: (value, row) => {
                 return {
@@ -259,48 +261,60 @@ export default function EventTable({ events, member_id }: EventTableProps) {
             headerName: "Duration",
             flex: 1,
             editable: false,
+            valueFormatter: (params: number) => params?.toFixed(3),
         },
-        {
-            field: "actions",
-            headerName: "Actions",
-            type: "actions",
-            getActions: (params) => {
-                const isEditing =
-                    rowModesModel[params.id]?.mode === GridRowModes.Edit;
+        ...((loggedInMember?.is_admin
+            ? [
+                  {
+                      field: "actions",
+                      headerName: "Actions",
+                      type: "actions",
+                      getActions: (params) => {
+                          const isEditing =
+                              rowModesModel[params.id]?.mode ===
+                              GridRowModes.Edit;
 
-                if (isEditing) {
-                    return [
-                        <GridActionsCellItem
-                            label="save"
-                            icon={<SaveIcon />}
-                            onClick={handleSaveClick(params.id as string)}
-                            showInMenu={false}
-                        />,
-                        <GridActionsCellItem
-                            label="cancel"
-                            icon={<CancelIcon />}
-                            onClick={handleCancelClick(params.id as string)}
-                            showInMenu={false}
-                        />,
-                    ];
-                }
+                          if (isEditing) {
+                              return [
+                                  <GridActionsCellItem
+                                      label="save"
+                                      icon={<SaveIcon />}
+                                      onClick={handleSaveClick(
+                                          params.id as string
+                                      )}
+                                      showInMenu={false}
+                                  />,
+                                  <GridActionsCellItem
+                                      label="cancel"
+                                      icon={<CancelIcon />}
+                                      onClick={handleCancelClick(
+                                          params.id as string
+                                      )}
+                                      showInMenu={false}
+                                  />,
+                              ];
+                          }
 
-                return [
-                    <GridActionsCellItem
-                        label="edit"
-                        icon={<EditIcon />}
-                        onClick={handleEditClick(params.id as string)}
-                        showInMenu={false}
-                    />,
-                    <GridActionsCellItem
-                        label="delete"
-                        icon={<DeleteIcon />}
-                        onClick={handleDeleteClick(params.id as string)}
-                        showInMenu={false}
-                    />,
-                ];
-            },
-        },
+                          return [
+                              <GridActionsCellItem
+                                  label="edit"
+                                  icon={<EditIcon />}
+                                  onClick={handleEditClick(params.id as string)}
+                                  showInMenu={false}
+                              />,
+                              <GridActionsCellItem
+                                  label="delete"
+                                  icon={<DeleteIcon />}
+                                  onClick={handleDeleteClick(
+                                      params.id as string
+                                  )}
+                                  showInMenu={false}
+                              />,
+                          ];
+                      },
+                  },
+              ]
+            : []) as GridColDef[]),
     ];
 
     return (
@@ -316,7 +330,7 @@ export default function EventTable({ events, member_id }: EventTableProps) {
                 editMode="row"
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{ toolbar: { member_id } }}
-                showToolbar
+                showToolbar={loggedInMember?.is_admin || false}
                 hideFooter
                 disableColumnMenu
                 sx={{

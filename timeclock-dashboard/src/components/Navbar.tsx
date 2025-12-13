@@ -208,6 +208,7 @@ export default function Navbar() {
                             alignItems: "center",
                             color: "white",
                             textDecoration: "none",
+                            cursor: "pointer",
                         }}
                     >
                         <img
@@ -237,22 +238,27 @@ export default function Navbar() {
                                 justifyContent: "space-between",
                             }}
                         >
-                            {loggedInMember?.is_admin && (
-                                <Button
-                                    variant="contained"
-                                    size="small"
-                                    onClick={() => navigate("/create-member")}
-                                    sx={{
-                                        marginLeft: 2,
-                                        textTransform: "none",
-                                        borderRadius: 2,
-                                        paddingX: "6px",
-                                        marginY: "6px",
-                                    }}
-                                >
-                                    Create Member
-                                </Button>
-                            )}
+                            <Box sx={{ display: "flex", height: "100%" }}>
+                                {loggedInMember?.is_admin && (
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        onClick={() =>
+                                            navigate("/create-member")
+                                        }
+                                        sx={{
+                                            marginLeft: 2,
+                                            textTransform: "none",
+                                            borderRadius: 2,
+                                            paddingX: "6px",
+                                            marginY: "6px",
+                                            height: "36px",
+                                        }}
+                                    >
+                                        Create Member
+                                    </Button>
+                                )}
+                            </Box>
                             <Box sx={{ display: "flex", height: "100%" }}>
                                 {seasonDropdown}
                                 <Button

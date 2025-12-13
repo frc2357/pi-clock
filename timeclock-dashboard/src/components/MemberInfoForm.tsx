@@ -252,7 +252,7 @@ export default function MemberEditForm({
                         </InputContainer>
                         <InputContainer label="Total Hours">
                             <Typography variant="h4" color="primary">
-                                {member.total_hours}
+                                {member.total_hours.toFixed(2)}
                             </Typography>
                         </InputContainer>
                     </Stack>

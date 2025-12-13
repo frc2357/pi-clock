@@ -12,7 +12,7 @@ const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     return {
         ...event,
         member,
-        duration_hours: duration_hours?.toFixed(3),
+        duration_hours,
     };
 };
 

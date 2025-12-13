@@ -45,7 +45,7 @@ const tableHeaders: {
         label: "Total Hours",
         align: "right",
         width: "15%",
-        render: (member: MemberType) => member?.total_hours,
+        render: (member: MemberType) => member?.total_hours?.toFixed(2),
     },
     {
         id: "latest_clock_in",
