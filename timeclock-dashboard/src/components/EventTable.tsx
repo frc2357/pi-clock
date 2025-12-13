@@ -17,6 +17,7 @@ import {
 import {
     DataGrid,
     GridActionsCellItem,
+    gridClasses,
     GridColDef,
     GridRowId,
     GridRowModel,
@@ -317,6 +318,17 @@ export default function EventTable({ events, member_id }: EventTableProps) {
                 slotProps={{ toolbar: { member_id } }}
                 showToolbar
                 hideFooter
+                disableColumnMenu
+                sx={{
+                    // Override the default cell style for text wrapping
+                    [`& .${gridClasses.cell}`]: {
+                        whiteSpace: "normal",
+                        wordWrap: "break-word",
+                        lineHeight: "normal",
+                        display: "flex",
+                        alignItems: "center",
+                    },
+                }}
             />
         </Box>
     );
