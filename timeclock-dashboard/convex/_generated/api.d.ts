@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
+import type * as frc_season from "../frc_season.js";
 import type * as http from "../http.js";
 import type * as recordTimeclockEvent from "../recordTimeclockEvent.js";
 import type * as team_member from "../team_member.js";
@@ -30,6 +31,7 @@ import type * as utils from "../utils.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  frc_season: typeof frc_season;
   http: typeof http;
   recordTimeclockEvent: typeof recordTimeclockEvent;
   team_member: typeof team_member;

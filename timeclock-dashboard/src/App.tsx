@@ -13,7 +13,7 @@ import LogoutPage from "./pages/LogoutPage";
 import MemberPage from "./pages/MemberPage";
 
 function App() {
-    const loggedInMember = useQuery(api.team_member.getLoggedInMember);
+    const loggedInMember = useQuery(api.team_member.getLoggedInMember, {});
 
     return (
         <BrowserRouter>

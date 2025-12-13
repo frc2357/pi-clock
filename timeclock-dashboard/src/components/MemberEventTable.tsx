@@ -3,14 +3,17 @@ import { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import EventTable from "./EventTable";
+import { useSeasonStore } from "@/store/season";
 
 export default function MemberEventTable({
     member_id,
 }: {
     member_id: Id<"team_member">;
 }) {
+    const { selectedSeasonId: season_id } = useSeasonStore();
     const memberEvents = useQuery(api.timeclock_event.getEventsForMember, {
         member_id,
+        season_id,
     });
 
     return (

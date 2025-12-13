@@ -1,3 +1,4 @@
+import { useSeasonStore } from "@/store/season";
 import {
     Box,
     Button,
@@ -6,42 +7,28 @@ import {
     Stack,
     Typography,
 } from "@mui/material";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
-import MemberInfoForm from "../components/MemberInfoForm";
 import MemberEventTable from "../components/MemberEventTable";
+import MemberInfoForm from "../components/MemberInfoForm";
+import useTriggerEvent from "../hooks/useTriggerEvent";
 import useCustomStyles from "../useCustomStyles";
 
 export default function MemberPage() {
     const { pagePadding } = useCustomStyles();
 
+    const { selectedSeasonId: season_id } = useSeasonStore();
+
     const { member_id } = useParams();
     const member = useQuery(api.team_member.getMember, {
         member_id: member_id as Id<"team_member">,
+        season_id,
     });
 
-    const loggedInMember = useQuery(api.team_member.getLoggedInMember);
-
-    const clockIn = useMutation(api.timeclock_event.clockIn);
-    const clockOut = useMutation(api.timeclock_event.clockOut);
-    const handleClockIn = async () => {
-        if (member) {
-            await clockIn({
-                member_id: member._id,
-                clock_in: Date.now(),
-            });
-        }
-    };
-    const handleClockOut = async () => {
-        if (member && member.latest_event) {
-            await clockOut({
-                event_id: member.latest_event._id,
-                clock_out: Date.now(),
-            });
-        }
-    };
+    const { loggedInMember, memberClockedIn, handleClockIn, handleClockOut } =
+        useTriggerEvent();
 
     if (member === undefined) {
         return (
@@ -92,28 +79,19 @@ export default function MemberPage() {
             >
                 <Typography variant="h4">{member.display_name}</Typography>
                 <Stack direction="row" spacing={pagePadding.padding}>
-                    {member.active ? (
-                        <Button
-                            variant="contained"
-                            color="error"
-                            onClick={handleClockOut}
-                            disabled={loggedInMember?._id !== member._id}
-                        >
-                            Clock Out
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="contained"
-                            color="success"
-                            onClick={handleClockIn}
-                            disabled={
-                                loggedInMember?._id !== member._id ||
-                                !!member.deleted_at
-                            }
-                        >
-                            Clock In
-                        </Button>
-                    )}
+                    <Button
+                        variant="contained"
+                        disabled={
+                            loggedInMember?._id !== member._id ||
+                            !!member.deleted_at
+                        }
+                        color={memberClockedIn ? "error" : "success"}
+                        onClick={
+                            memberClockedIn ? handleClockOut : handleClockIn
+                        }
+                    >
+                        {memberClockedIn ? "Clock Out" : "Clock In"}
+                    </Button>
                 </Stack>
             </Box>
 
