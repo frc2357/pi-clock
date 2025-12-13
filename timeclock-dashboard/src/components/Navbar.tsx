@@ -59,7 +59,7 @@ export default function Navbar() {
             <Select
                 labelId="season-select-label"
                 id="season-select"
-                value={selectedSeasonId}
+                value={selectedSeasonId || ("" as Id<"frc_season">)}
                 onChange={(e) =>
                     setSelectedSeasonId(e.target.value as Id<"frc_season">)
                 }
