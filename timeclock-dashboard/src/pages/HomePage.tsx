@@ -22,6 +22,7 @@ import MemberStatusChip from "../components/MemberStatusChip";
 import useCustomStyles from "../useCustomStyles";
 import { useMemo, useState } from "react";
 import { FunctionReturnType } from "convex/server";
+import { useSeasonStore } from "@/store/season";
 
 const tableHeaders = [
     {
@@ -55,13 +56,15 @@ type MemberType = FunctionReturnType<typeof api.team_member.getMember>;
 export default function HomePage() {
     const { pagePadding, tableSize } = useCustomStyles();
 
+    const { selectedSeasonId: season_id } = useSeasonStore();
+
     const [showDeactivatedUsers, setShowDeactivatedUsers] = useState(false);
     const [direction, setDirection] = useState<"asc" | "desc">("desc");
     const [orderBy, setOrderBy] = useState<keyof MemberType>(
         "active" as keyof MemberType
     );
 
-    const teamMembers = useQuery(api.team_member.list, {});
+    const teamMembers = useQuery(api.team_member.list, { season_id });
     const navigate = useNavigate();
 
     const handleSortRequest = (property: keyof MemberType) => {

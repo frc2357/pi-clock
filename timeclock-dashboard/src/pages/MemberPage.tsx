@@ -1,3 +1,4 @@
+import { useSeasonStore } from "@/store/season";
 import {
     Box,
     Button,
@@ -18,9 +19,12 @@ import useCustomStyles from "../useCustomStyles";
 export default function MemberPage() {
     const { pagePadding } = useCustomStyles();
 
+    const { selectedSeasonId: season_id } = useSeasonStore();
+
     const { member_id } = useParams();
     const member = useQuery(api.team_member.getMember, {
         member_id: member_id as Id<"team_member">,
+        season_id,
     });
 
     const { loggedInMember, memberClockedIn, handleClockIn, handleClockOut } =

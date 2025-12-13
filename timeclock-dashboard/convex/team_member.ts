@@ -20,7 +20,8 @@ const enrichMember = async (
 
     const filteredEvents = await filterEventsBySeason(ctx, events, season_id);
 
-    const latest_event = filteredEvents[0] || null;
+    const latest_event = events[0] || null;
+    const latest_event_filtered = filteredEvents[0] || null;
     const active =
         latest_event &&
         !latest_event.clock_out &&
@@ -35,8 +36,8 @@ const enrichMember = async (
     return {
         ...member,
         events: filteredEvents,
-        latest_clock_in: latest_event?.clock_in || null,
-        latest_event,
+        latest_clock_in: latest_event_filtered?.clock_in || null,
+        latest_event: latest_event_filtered,
         active,
         total_hours: total_hours.toFixed(2),
     };
@@ -139,7 +140,6 @@ export const list = query({
         season_id: v.optional(v.id("frc_season")),
     },
     handler: async (ctx, { season_id }) => {
-        console.log("team_member.list", season_id);
         const members = await ctx.db.query("team_member").collect();
 
         return Promise.all(
