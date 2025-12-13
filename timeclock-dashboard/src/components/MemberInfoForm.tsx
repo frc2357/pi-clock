@@ -35,7 +35,7 @@ export default function MemberEditForm({
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const loggedInMember = useQuery(api.team_member.getLoggedInMember);
+    const loggedInMember = useQuery(api.team_member.getLoggedInMember, {});
     const updateMember = useMutation(api.team_member.updateMember);
     const toggleMemberActivation = useMutation(
         api.team_member.toggleMemberActivation
