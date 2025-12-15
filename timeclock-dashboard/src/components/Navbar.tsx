@@ -88,6 +88,7 @@ export default function Navbar() {
 
     const profileMenuItems = [
         <MenuItem
+            key="profile"
             sx={{ width: "100%" }}
             onClick={() =>
                 navigateAndCloseProfileMenu(`/member/${loggedInMember!._id}`)
@@ -95,7 +96,7 @@ export default function Navbar() {
         >
             Profile
         </MenuItem>,
-        <MenuItem sx={{ padding: 0, width: "100%" }}>
+        <MenuItem key="trigger-event" sx={{ padding: 0, width: "100%" }}>
             <Button
                 disabled={!loggedInMember}
                 color={memberClockedIn ? "error" : "success"}
@@ -110,6 +111,7 @@ export default function Navbar() {
             </Button>
         </MenuItem>,
         <MenuItem
+            key="logout"
             onClick={() => navigateAndCloseProfileMenu("/logout")}
             sx={{ width: "100%" }}
         >

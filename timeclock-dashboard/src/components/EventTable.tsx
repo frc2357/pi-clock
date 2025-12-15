@@ -177,7 +177,7 @@ export default function EventTable({ events, member_id }: EventTableProps) {
 
         clock_in: event.clock_in ? new Date(event.clock_in) : null,
         clock_out: event.clock_out ? new Date(event.clock_out) : null,
-        duration: event.duration_hours ?? "--",
+        duration: event.duration_hours,
 
         ...(!member_id ? { member: event.member?.display_name ?? "--" } : {}),
     }));
@@ -261,7 +261,8 @@ export default function EventTable({ events, member_id }: EventTableProps) {
             headerName: "Duration",
             flex: 1,
             editable: false,
-            valueFormatter: (params: number) => params?.toFixed(3),
+            valueFormatter: (params: number) =>
+                params != null ? params.toFixed(3) : "--",
         },
         ...((loggedInMember?.is_admin
             ? [

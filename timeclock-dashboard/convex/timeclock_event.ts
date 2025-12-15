@@ -3,6 +3,8 @@ import { Doc } from "./_generated/dataModel";
 import { mutation, query, QueryCtx } from "./_generated/server";
 import { filterEventsBySeason } from "./utils";
 
+const MILLIS_PER_MINUTE = 1000 * 60;
+
 const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     const member = await ctx.db.get(event.member_id);
     const duration_hours =
@@ -16,6 +18,12 @@ const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     };
 };
 
+const roundToMinute = (timestamp?: number) => {
+    if (!timestamp) return timestamp;
+    const minutes = Math.floor(timestamp / MILLIS_PER_MINUTE);
+    return minutes * MILLIS_PER_MINUTE
+}
+
 export const createEvent = mutation({
     args: {
         member_id: v.id("team_member"),
@@ -23,8 +31,11 @@ export const createEvent = mutation({
         clock_out: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
-        console.log(args);
-        const eventId = await ctx.db.insert("timeclock_event", args);
+        const eventId = await ctx.db.insert("timeclock_event", {
+            member_id: args.member_id,
+            clock_in: roundToMinute(args.clock_in),
+            clock_out: roundToMinute(args.clock_out),
+        });
 
         return await ctx.db.get(eventId);
     },
@@ -33,7 +44,7 @@ export const createEvent = mutation({
 export const clockOut = mutation({
     args: { event_id: v.id("timeclock_event"), clock_out: v.number() },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.event_id, { clock_out: args.clock_out });
+        await ctx.db.patch(args.event_id, { clock_out: roundToMinute(args.clock_out) });
     },
 });
 
@@ -42,7 +53,7 @@ export const clockIn = mutation({
     handler: async (ctx, args) => {
         const eventId = await ctx.db.insert("timeclock_event", {
             member_id: args.member_id,
-            clock_in: args.clock_in,
+            clock_in: roundToMinute(args.clock_in),
         });
 
         return await ctx.db.get(eventId);

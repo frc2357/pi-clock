@@ -200,6 +200,7 @@ export default function HomePage() {
                                         >
                                             {tableHeaders.map((header) => (
                                                 <TableCell
+                                                    key={header.id}
                                                     align={header.align}
                                                     sx={{ width: header.width }}
                                                 >
