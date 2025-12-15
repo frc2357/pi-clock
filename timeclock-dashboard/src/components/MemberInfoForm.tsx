@@ -151,6 +151,10 @@ export default function MemberEditForm({
                                             onClick={
                                                 handleToggleMemberActivation
                                             }
+                                            disabled={
+                                                member._id ===
+                                                loggedInMember._id
+                                            }
                                         >
                                             {member.deleted_at
                                                 ? "Reactivate"
