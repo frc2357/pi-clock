@@ -39,7 +39,7 @@ const enrichMember = async (
         latest_clock_in: latest_event_filtered?.clock_in || null,
         latest_event: latest_event_filtered,
         active,
-        total_hours: total_hours.toFixed(2),
+        total_hours,
     };
 };
 

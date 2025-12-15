@@ -28,6 +28,6 @@ export const filterEventsBySeason = async (
 
     return events.filter(({ clock_in }) => {
         if (!clock_in) return false;
-        return clock_in >= season.start_date && clock_in <= season.end_date;
+        return clock_in >= season.start_date && clock_in < season.end_date;
     });
 };

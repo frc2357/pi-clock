@@ -3,6 +3,8 @@ import { Doc } from "./_generated/dataModel";
 import { mutation, query, QueryCtx } from "./_generated/server";
 import { filterEventsBySeason } from "./utils";
 
+const MILLIS_PER_MINUTE = 1000 * 60;
+
 const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     const member = await ctx.db.get(event.member_id);
     const duration_hours =
@@ -12,14 +14,37 @@ const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
     return {
         ...event,
         member,
-        duration_hours: duration_hours?.toFixed(3),
+        duration_hours,
     };
 };
+
+const roundToMinute = (timestamp?: number) => {
+    if (!timestamp) return timestamp;
+    const minutes = Math.floor(timestamp / MILLIS_PER_MINUTE);
+    return minutes * MILLIS_PER_MINUTE
+}
+
+export const createEvent = mutation({
+    args: {
+        member_id: v.id("team_member"),
+        clock_in: v.optional(v.number()),
+        clock_out: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const eventId = await ctx.db.insert("timeclock_event", {
+            member_id: args.member_id,
+            clock_in: roundToMinute(args.clock_in),
+            clock_out: roundToMinute(args.clock_out),
+        });
+
+        return await ctx.db.get(eventId);
+    },
+});
 
 export const clockOut = mutation({
     args: { event_id: v.id("timeclock_event"), clock_out: v.number() },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.event_id, { clock_out: args.clock_out });
+        await ctx.db.patch(args.event_id, { clock_out: roundToMinute(args.clock_out) });
     },
 });
 
@@ -28,11 +53,10 @@ export const clockIn = mutation({
     handler: async (ctx, args) => {
         const eventId = await ctx.db.insert("timeclock_event", {
             member_id: args.member_id,
-            clock_in: args.clock_in,
+            clock_in: roundToMinute(args.clock_in),
         });
-        const event = await ctx.db.get(eventId);
 
-        return event;
+        return await ctx.db.get(eventId);
     },
 });
 
@@ -100,5 +124,24 @@ export const list = query({
         return Promise.all(
             filtered.map(async (event) => enrichEvent(ctx, event))
         );
+    },
+});
+
+export const updateEvent = mutation({
+    args: {
+        id: v.id("timeclock_event"),
+        clock_in: v.number(),
+        clock_out: v.number(),
+    },
+    handler: async (ctx, args) => {
+        const { id, clock_in, clock_out } = args;
+        await ctx.db.patch(id, { clock_in, clock_out });
+    },
+});
+
+export const deleteEvent = mutation({
+    args: { id: v.id("timeclock_event") },
+    handler: async (ctx, args) => {
+        await ctx.db.delete(args.id);
     },
 });

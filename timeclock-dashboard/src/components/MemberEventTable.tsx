@@ -21,7 +21,10 @@ export default function MemberEventTable({
             <Card sx={{ borderRadius: 3 }}>
                 <CardContent>
                     {memberEvents ? (
-                        <EventTable events={memberEvents} />
+                        <EventTable
+                            events={memberEvents}
+                            member_id={member_id}
+                        />
                     ) : (
                         <CircularProgress />
                     )}

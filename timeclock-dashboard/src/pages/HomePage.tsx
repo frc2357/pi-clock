@@ -20,38 +20,56 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import MemberStatusChip from "../components/MemberStatusChip";
 import useCustomStyles from "../useCustomStyles";
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { FunctionReturnType } from "convex/server";
 import { useSeasonStore } from "@/store/season";
 
-const tableHeaders = [
+type MemberType = FunctionReturnType<typeof api.team_member.getMember>;
+
+const tableHeaders: {
+    id: string;
+    label: string;
+    align: TableCellProps["align"];
+    width: string;
+    render: (member: MemberType) => ReactNode;
+}[] = [
     {
         id: "display_name",
         label: "Team Member",
         align: "left",
         width: "30%",
+        render: (member: MemberType) => member?.display_name,
     },
     {
         id: "total_hours",
         label: "Total Hours",
         align: "right",
-        width: "20%",
+        width: "15%",
+        render: (member: MemberType) => member?.total_hours?.toFixed(2),
     },
     {
         id: "latest_clock_in",
         label: "Last Clock In",
         align: "right",
-        width: "30%%",
+        width: "30%",
+        render: (member: MemberType) =>
+            member?.latest_event?.clock_in
+                ? format(
+                      new Date(member.latest_event.clock_in),
+                      "MM/dd/yy HH:mm"
+                  )
+                : "Never",
     },
     {
         id: "active",
         label: "Status",
         align: "right",
-        width: "20%",
+        width: "25%",
+        render: (member: MemberType) => (
+            <MemberStatusChip active={member?.active || false} />
+        ),
     },
 ];
-
-type MemberType = FunctionReturnType<typeof api.team_member.getMember>;
 
 export default function HomePage() {
     const { pagePadding, tableSize } = useCustomStyles();
@@ -133,7 +151,10 @@ export default function HomePage() {
                             />
                         </Box>
                         <TableContainer>
-                            <Table size={tableSize}>
+                            <Table
+                                size={tableSize}
+                                sx={{ tableLayout: "fixed", width: "100%" }}
+                            >
                                 <TableHead>
                                     <TableRow>
                                         {tableHeaders.map((header) => (
@@ -177,27 +198,15 @@ export default function HomePage() {
                                             key={member._id}
                                             sx={{ cursor: "pointer" }}
                                         >
-                                            <TableCell>
-                                                {member.display_name}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {member.total_hours}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {member.latest_event?.clock_in
-                                                    ? format(
-                                                          new Date(
-                                                              member.latest_event.clock_in
-                                                          ),
-                                                          "MM/dd/yy HH:mm"
-                                                      )
-                                                    : "Never"}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <MemberStatusChip
-                                                    active={member.active}
-                                                />
-                                            </TableCell>
+                                            {tableHeaders.map((header) => (
+                                                <TableCell
+                                                    key={header.id}
+                                                    align={header.align}
+                                                    sx={{ width: header.width }}
+                                                >
+                                                    {header.render(member)}
+                                                </TableCell>
+                                            ))}
                                         </TableRow>
                                     ))}
                                 </TableBody>
