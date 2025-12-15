@@ -12,6 +12,7 @@ export default function useTriggerEvent() {
             await clockIn({
                 member_id: loggedInMember._id,
                 clock_in: Date.now(),
+                location: "web",
             });
         }
     };
@@ -20,6 +21,7 @@ export default function useTriggerEvent() {
             await clockOut({
                 event_id: loggedInMember.latest_event._id,
                 clock_out: Date.now(),
+                location: "web",
             });
         }
     };

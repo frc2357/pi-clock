@@ -19,6 +19,7 @@ import {
     GridActionsCellItem,
     gridClasses,
     GridColDef,
+    GridColumnGroupingModel,
     GridRowId,
     GridRowModel,
     GridRowModes,
@@ -42,6 +43,8 @@ declare module "@mui/x-data-grid" {
         member_id: Id<"team_member">;
     }
 }
+
+const DATE_FORMAT = "MM/dd/yy HH:mm";
 
 function CustomToolbar({ member_id }: CustomToolbarProps) {
     const createEvent = useMutation(api.timeclock_event.createEvent);
@@ -176,7 +179,9 @@ export default function EventTable({ events, member_id }: EventTableProps) {
         id: event._id,
 
         clock_in: event.clock_in ? new Date(event.clock_in) : null,
+        clock_in_location: event.clock_in_location,
         clock_out: event.clock_out ? new Date(event.clock_out) : null,
+        clock_out_location: event.clock_out_location,
         duration: event.duration_hours,
 
         ...(!member_id ? { member: event.member?.display_name ?? "--" } : {}),
@@ -217,7 +222,9 @@ export default function EventTable({ events, member_id }: EventTableProps) {
         await updateEvent({
             id: newRow.id,
             clock_in: newRow.clock_in.getTime() ?? null,
+            clock_in_location: newRow.clock_in_location,
             clock_out: newRow.clock_out.getTime() ?? null,
+            clock_out_location: newRow.clock_out_location,
         });
 
         return newRow;
@@ -225,24 +232,31 @@ export default function EventTable({ events, member_id }: EventTableProps) {
 
     const columns: GridColDef[] = [
         {
-            field: "clockIn",
-            headerName: "Clock In",
+            field: "clock_in",
+            headerName: "Date",
             type: "dateTime",
             flex: 1,
             editable: loggedInMember?.is_admin,
             valueGetter: (_value, row) => row.clock_in,
-            valueSetter: (value, row) => {
-                return {
-                    ...row,
-                    clock_in: value,
-                };
-            },
+            valueSetter: (value, row) => ({ ...row, clock_in: value }),
             valueFormatter: (params) =>
-                params ? format(params, "MM/dd/yy HH:mm") : "--",
+                params ? format(params, DATE_FORMAT) : "--",
         },
         {
-            field: "clockOut",
-            headerName: "Clock Out",
+            field: "clock_in_location",
+            headerName: "Location",
+            type: "singleSelect",
+            valueOptions: ["shop", "web"],
+            editable: loggedInMember?.is_admin,
+            valueGetter: (_value, row) => row.clock_in_location,
+            valueSetter: (value, row) => {
+                console.log(value);
+                return { ...row, clock_in_location: value };
+            },
+        },
+        {
+            field: "clock_out",
+            headerName: "Date",
             type: "dateTime",
             flex: 1,
             editable: loggedInMember?.is_admin,
@@ -255,6 +269,18 @@ export default function EventTable({ events, member_id }: EventTableProps) {
             },
             valueFormatter: (params) =>
                 params ? format(params, "MM/dd/yy HH:mm") : "--",
+        },
+        {
+            field: "clock_out_location",
+            headerName: "Location",
+            type: "singleSelect",
+            valueOptions: ["shop", "web"],
+            editable: loggedInMember?.is_admin,
+            valueGetter: (_value, row) => row.clock_out_location,
+            valueSetter: (value, row) => ({
+                ...row,
+                clock_out_location: value,
+            }),
         },
         {
             field: "duration",
@@ -318,11 +344,23 @@ export default function EventTable({ events, member_id }: EventTableProps) {
             : []) as GridColDef[]),
     ];
 
+    const columnGroups: GridColumnGroupingModel = [
+        {
+            groupId: "Clock In",
+            children: [{ field: "clock_in" }, { field: "clock_in_location" }],
+        },
+        {
+            groupId: "Clock Out",
+            children: [{ field: "clock_out" }, { field: "clock_out_location" }],
+        },
+    ];
+
     return (
         <Box sx={{ width: "100%" }}>
             <DataGrid
                 rows={rows}
                 columns={columns}
+                columnGroupingModel={columnGroups}
                 rowModesModel={rowModesModel}
                 onRowModesModelChange={setRowModesModel}
                 processRowUpdate={processRowUpdate}

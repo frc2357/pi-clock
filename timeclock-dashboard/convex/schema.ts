@@ -2,6 +2,8 @@ import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const eventLocation = v.union(v.literal("shop"), v.literal("web"));
+
 export default defineSchema({
     ...authTables,
     team_member: defineTable({
@@ -21,6 +23,8 @@ export default defineSchema({
         member_id: v.id("team_member"),
         clock_in: v.optional(v.number()),
         clock_out: v.optional(v.number()),
+        clock_in_location: v.optional(eventLocation),
+        clock_out_location: v.optional(eventLocation),
     })
         .index("by_member_id", ["member_id"])
         .index("by_member_id_clock_in", ["member_id", "clock_in"])

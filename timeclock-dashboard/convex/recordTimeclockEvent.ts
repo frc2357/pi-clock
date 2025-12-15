@@ -15,7 +15,7 @@ export const recordTimeclockEvent = httpAction(async (ctx, request) => {
     const member = await ctx.runQuery(api.team_member.getByNfcId, { nfc_id });
 
     if (member) {
-        const latestEvent = await ctx.runQuery(api.team_member.getLatestEvent, { member_id: member._id });    
+        const latestEvent = await ctx.runQuery(api.team_member.getLatestEvent, { member_id: member._id });
         if (
             !latestEvent ||
             latestEvent.clock_out ||
@@ -25,17 +25,19 @@ export const recordTimeclockEvent = httpAction(async (ctx, request) => {
             await ctx.runMutation(api.timeclock_event.clockIn, {
                 member_id: member._id,
                 clock_in: timestamp,
+                location: "shop"
             });
 
             return Response.json(
                 { event: 'clock_in', member },
-                { status: 200}
+                { status: 200 }
             )
         } else {
             // Otherwise, update clock_out for the latest event
             await ctx.runMutation(api.timeclock_event.clockOut, {
                 event_id: latestEvent._id,
                 clock_out: timestamp,
+                location: "shop"
             })
 
             return Response.json(

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { Doc } from "./_generated/dataModel";
 import { mutation, query, QueryCtx } from "./_generated/server";
 import { filterEventsBySeason } from "./utils";
+import { eventLocation } from './schema';
 
 const MILLIS_PER_MINUTE = 1000 * 60;
 
@@ -29,12 +30,16 @@ export const createEvent = mutation({
         member_id: v.id("team_member"),
         clock_in: v.optional(v.number()),
         clock_out: v.optional(v.number()),
+        clock_in_location: v.optional(eventLocation),
+        clock_out_location: v.optional(eventLocation),
     },
     handler: async (ctx, args) => {
         const eventId = await ctx.db.insert("timeclock_event", {
             member_id: args.member_id,
             clock_in: roundToMinute(args.clock_in),
             clock_out: roundToMinute(args.clock_out),
+            clock_in_location: args.clock_in_location,
+            clock_out_location: args.clock_out_location,
         });
 
         return await ctx.db.get(eventId);
@@ -42,18 +47,30 @@ export const createEvent = mutation({
 });
 
 export const clockOut = mutation({
-    args: { event_id: v.id("timeclock_event"), clock_out: v.number() },
+    args: {
+        event_id: v.id("timeclock_event"),
+        clock_out: v.number(),
+        location: eventLocation
+    },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.event_id, { clock_out: roundToMinute(args.clock_out) });
+        await ctx.db.patch(args.event_id, {
+            clock_out: roundToMinute(args.clock_out),
+            clock_out_location: args.location
+        });
     },
 });
 
 export const clockIn = mutation({
-    args: { member_id: v.id("team_member"), clock_in: v.number() },
+    args: {
+        member_id: v.id("team_member"),
+        clock_in: v.number(),
+        location: eventLocation
+    },
     handler: async (ctx, args) => {
         const eventId = await ctx.db.insert("timeclock_event", {
             member_id: args.member_id,
             clock_in: roundToMinute(args.clock_in),
+            clock_in_location: args.location
         });
 
         return await ctx.db.get(eventId);
@@ -131,11 +148,13 @@ export const updateEvent = mutation({
     args: {
         id: v.id("timeclock_event"),
         clock_in: v.number(),
+        clock_in_location: eventLocation,
         clock_out: v.number(),
+        clock_out_location: eventLocation,
     },
     handler: async (ctx, args) => {
-        const { id, clock_in, clock_out } = args;
-        await ctx.db.patch(id, { clock_in, clock_out });
+        const { id, ...rest } = args;
+        await ctx.db.patch(id, rest);
     },
 });
 
