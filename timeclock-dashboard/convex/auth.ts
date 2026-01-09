@@ -4,7 +4,7 @@ import { convexAuth } from "@convex-dev/auth/server";
 import { query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-export const { auth, signIn, signOut, store, isAuthenticated} = convexAuth({
+export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Anonymous, Google]
 })
 
@@ -21,15 +21,16 @@ export const getUsersWithoutMember = query({
   handler: async (ctx) => {
     const users = await ctx.db.query("users").collect()
 
-    const usersMap = await Promise.all(
+    const userMap = await Promise.all(
       users.map(async (user) => {
-        const members = await ctx.db
-          .query("team_member")
-          .withIndex("by_user_id_deleted_at", (q) => q.eq("user_id", user._id).eq("deleted_at", undefined))
-          .collect()
-        return members.length === 0 ? user : null;
+        const user_member_map = await ctx.db
+          .query("user_member_map")
+          .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
+          .first();
+        return !user_member_map?.member_id ? user : null;
       })
     )
-    return usersMap.filter((user) => user !== null)
+
+    return userMap.filter(Boolean)
   }
 })

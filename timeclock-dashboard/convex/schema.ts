@@ -12,10 +12,8 @@ export default defineSchema({
         is_admin: v.boolean(),
         deleted_at: v.optional(v.number()),
     })
-        .index("by_user_id", ["user_id"])
         .index("by_nfc_id", ["nfc_id"])
-        .index("by_deleted_at", ["deleted_at"])
-        .index("by_user_id_deleted_at", ["user_id", "deleted_at"]),
+        .index("by_deleted_at", ["deleted_at"]),
 
     timeclock_event: defineTable({
         member_id: v.id("team_member"),
@@ -35,4 +33,11 @@ export default defineSchema({
         .index("by_start", ["start_date"])
         .index("by_end", ["end_date"])
         .index("by_start_and_end", ["start_date", "end_date"]),
+
+    user_member_map: defineTable({
+        user_id: v.id("users"),
+        member_id: v.id("team_member"),
+    })
+        .index("by_user_id", ["user_id"])
+        .index("by_member_id", ["member_id"]),
 });

@@ -22,7 +22,7 @@
     "@mui/x-data-grid-generator": "^8.18.0",
     "@mui/x-date-pickers": "^8.18.0",
     "convex": "^1.24.8",
-    "convex-helpers": "^0.1.95",
+    "convex-helpers": "^0.1.108",
     "date-fns": "^4.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

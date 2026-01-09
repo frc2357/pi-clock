@@ -4,6 +4,7 @@ import { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, QueryCtx } from "./_generated/server";
 import { isClockInOutdated } from "./utils";
 import { filterEventsBySeason } from "./utils";
+import { getAll } from "convex-helpers/server/relationships";
 
 const enrichMember = async (
     ctx: QueryCtx,
@@ -19,6 +20,15 @@ const enrichMember = async (
         .collect();
 
     const filteredEvents = await filterEventsBySeason(ctx, events, season_id);
+
+    const umms = await ctx.db
+        .query("user_member_map")
+        .withIndex("by_member_id", (q) => q.eq("member_id", member._id))
+        .collect();
+    const users = await getAll(
+        ctx.db,
+        umms.map((umm) => umm.user_id)
+    );
 
     const latest_event = events[0] || null;
     const latest_event_filtered = filteredEvents[0] || null;
@@ -40,6 +50,7 @@ const enrichMember = async (
         latest_event: latest_event_filtered,
         active,
         total_hours,
+        users,
     };
 };
 
@@ -78,11 +89,38 @@ export const updateMember = mutation({
         member_id: v.id("team_member"),
         display_name: v.optional(v.string()),
         nfc_id: v.optional(v.string()),
+        user_ids: v.optional(v.array(v.id("users"))),
         is_student: v.optional(v.boolean()),
         is_admin: v.optional(v.boolean()),
     },
     handler: async (ctx, args) => {
-        return ctx.db.patch(args.member_id, {
+        const { member_id, user_ids: incomingUserIds } = args;
+
+        if (incomingUserIds) {
+            const existingUMMs = await ctx.db
+                .query("user_member_map")
+                .withIndex("by_member_id", (q) => q.eq("member_id", member_id))
+                .collect();
+
+            const incomingSet = new Set(incomingUserIds);
+            const existingSet = new Set(existingUMMs.map((umm) => umm.user_id));
+
+            const userIdsToAdd = incomingUserIds.filter(
+                (id) => !existingSet.has(id)
+            );
+            const ummsToDelete = existingUMMs.filter(
+                (umm) => !incomingSet.has(umm.user_id)
+            );
+
+            userIdsToAdd.forEach((user_id) =>
+                ctx.db.insert("user_member_map", { member_id, user_id })
+            );
+            ummsToDelete.forEach((umm) => {
+                ctx.db.delete("user_member_map", umm._id);
+            });
+        }
+
+        return ctx.db.patch(member_id, {
             display_name: args.display_name,
             nfc_id: args.nfc_id,
             is_student: args.is_student,
@@ -93,26 +131,33 @@ export const updateMember = mutation({
 
 export const createMember = mutation({
     args: {
-        user_id: v.optional(v.id("users")),
+        user_ids: v.array(v.id("users")),
         display_name: v.string(),
         nfc_id: v.string(),
         is_student: v.boolean(),
         is_admin: v.boolean(),
     },
     handler: async (ctx, args) => {
-        if (args.user_id) {
-            const existingMember = await ctx.db
-                .query("team_member")
-                .withIndex("by_user_id", (q) => q.eq("user_id", args.user_id))
-                .first();
+        const { user_ids, ...rest } = args;
+        if (user_ids?.length) {
+            const userMemberMaps = await ctx.db
+                .query("user_member_map")
+                .collect();
+            const existingUserMemberMaps = userMemberMaps.filter((umm) =>
+                user_ids.includes(umm.user_id)
+            );
 
-            if (existingMember) {
+            if (existingUserMemberMaps?.length) {
                 throw new Error("Member already exists for this user.");
             }
         }
 
-        const memberId = await ctx.db.insert("team_member", args);
-        return memberId;
+        const member_id = await ctx.db.insert("team_member", rest);
+
+        user_ids.forEach((user_id) => {
+            ctx.db.insert("user_member_map", { user_id, member_id });
+        });
+        return member_id;
     },
 });
 
@@ -123,13 +168,14 @@ export const getLoggedInMember = query({
     handler: async (ctx, { season_id }) => {
         const loggedInUserId = await getAuthUserId(ctx);
         if (!loggedInUserId) return null;
-        const loggedInUser = await ctx.db.get(loggedInUserId);
-        if (!loggedInUser) return null;
 
-        const member = await ctx.db
-            .query("team_member")
-            .withIndex("by_user_id", (q) => q.eq("user_id", loggedInUser?._id))
-            .first();
+        const { member_id } =
+            (await ctx.db
+                .query("user_member_map")
+                .withIndex("by_user_id", (q) => q.eq("user_id", loggedInUserId))
+                .first()) || {};
+        if (!member_id) return null;
+        const member = await ctx.db.get(member_id);
         if (!member) return member;
         return enrichMember(ctx, member, season_id);
     },
