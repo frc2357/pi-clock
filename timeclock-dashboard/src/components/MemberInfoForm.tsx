@@ -1,31 +1,27 @@
+import useMemberForm, {
+    defaultMemberData,
+    formDataType,
+} from "@/hooks/useMemberForm";
 import {
     Box,
     Button,
     Card,
     CardContent,
-    Checkbox,
     CircularProgress,
-    FormControlLabel,
     Grid,
     Stack,
-    TextField,
     Typography,
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import { Doc } from "convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
-import { FunctionReturnType, WithoutSystemFields } from "convex/server";
+import { FunctionReturnType } from "convex/server";
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
 import InputContainer from "./InputContainer";
 import MemberStatusChip from "./MemberStatusChip";
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface FormData
-    extends Omit<WithoutSystemFields<Doc<"team_member">>, "user_id"> {}
 
 export default function MemberEditForm({
     member,
@@ -41,14 +37,22 @@ export default function MemberEditForm({
         api.team_member.toggleMemberActivation
     );
 
+    const { display_name, nfc_id, is_student, is_admin, users } = member || {};
+    const memberData = member
+        ? ({
+              display_name,
+              nfc_id,
+              is_student,
+              is_admin,
+              users,
+          } as formDataType)
+        : defaultMemberData;
+
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState<FormData>({
-        display_name: "",
-        nfc_id: "",
-        is_student: false,
-        is_admin: false,
-        deleted_at: undefined,
-    });
+    const { formInputs, formData, clearForm } = useMemberForm(
+        memberData,
+        !isEditing
+    );
 
     if (!member) {
         return (
@@ -65,13 +69,7 @@ export default function MemberEditForm({
     }
 
     const handleEdit = () => {
-        setFormData({
-            display_name: member.display_name || "",
-            nfc_id: member.nfc_id || "",
-            is_student: member.is_student || false,
-            is_admin: member.is_admin || false,
-            deleted_at: member.deleted_at || undefined,
-        });
+        clearForm();
         setIsEditing(true);
     };
 
@@ -81,9 +79,11 @@ export default function MemberEditForm({
 
     const handleSave = async () => {
         try {
+            const { users, ...otherFormData } = formData;
             await updateMember({
                 member_id: member._id,
-                ...formData,
+                user_ids: users.map((u) => u._id),
+                ...otherFormData,
             });
             setIsEditing(false);
             toast.success("Member updated successfully");
@@ -163,82 +163,7 @@ export default function MemberEditForm({
                                     </Box>
                                 ))}
                         </Box>
-                        <InputContainer label="Display Name">
-                            <TextField
-                                name="display_name"
-                                value={
-                                    isEditing
-                                        ? formData.display_name
-                                        : member.display_name
-                                }
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        display_name: e.target.value,
-                                    })
-                                }
-                                disabled={!isEditing}
-                                size="small"
-                                fullWidth
-                                required
-                            />
-                        </InputContainer>
-                        <InputContainer label="NFC ID">
-                            <TextField
-                                name="nfc_id"
-                                value={
-                                    isEditing ? formData.nfc_id : member.nfc_id
-                                }
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        nfc_id: e.target.value,
-                                    })
-                                }
-                                disabled={!isEditing}
-                                size="small"
-                                fullWidth
-                                required
-                            />
-                        </InputContainer>
-                        <FormControlLabel
-                            label="Is Student"
-                            control={
-                                <Checkbox
-                                    checked={
-                                        isEditing
-                                            ? formData.is_student
-                                            : member.is_student
-                                    }
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            is_student: e.target.checked,
-                                        })
-                                    }
-                                    disabled={!isEditing}
-                                />
-                            }
-                        />
-                        <FormControlLabel
-                            label="Is Admin"
-                            control={
-                                <Checkbox
-                                    checked={
-                                        isEditing
-                                            ? formData.is_admin
-                                            : member.is_admin
-                                    }
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            is_admin: e.target.checked,
-                                        })
-                                    }
-                                    disabled={!isEditing}
-                                />
-                            }
-                        />
+                        {formInputs}
                         <InputContainer label="Last Clock In">
                             <Typography variant="h6">
                                 {member.latest_event?.clock_in

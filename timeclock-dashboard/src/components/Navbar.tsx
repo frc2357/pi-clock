@@ -263,21 +263,25 @@ export default function Navbar() {
                             </Box>
                             <Box sx={{ display: "flex", height: "100%" }}>
                                 {seasonDropdown}
-                                <Button
-                                    size="small"
-                                    sx={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        textTransform: "none",
-                                    }}
-                                    onClick={openProfileMenu}
-                                >
-                                    <Typography variant="subtitle1">
-                                        {loggedInMember?.display_name}
-                                    </Typography>
-                                </Button>
-                                {profileMenu}
+                                {loggedInMember && (
+                                    <>
+                                        <Button
+                                            size="small"
+                                            sx={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                justifyContent: "center",
+                                                textTransform: "none",
+                                            }}
+                                            onClick={openProfileMenu}
+                                        >
+                                            <Typography variant="subtitle1">
+                                                {loggedInMember.display_name}
+                                            </Typography>
+                                        </Button>
+                                        {profileMenu}
+                                    </>
+                                )}
                             </Box>
                         </Box>
                     )}

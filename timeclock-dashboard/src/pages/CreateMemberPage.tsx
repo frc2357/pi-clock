@@ -1,42 +1,23 @@
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Checkbox,
-    FormControlLabel,
-    MenuItem,
-    Select,
-    TextField,
-    Typography,
-} from "@mui/material";
-import { useMutation, useQuery } from "convex/react";
-import { FormEvent, useState } from "react";
+import useMemberForm from "@/hooks/useMemberForm";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { useMutation } from "convex/react";
+import { FormEvent } from "react";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
-import InputContainer from "../components/InputContainer";
 import useCustomStyles from "../useCustomStyles";
-
-const defaultMemberData = {
-    user_id: undefined as Id<"users"> | undefined,
-    display_name: "",
-    nfc_id: "",
-    is_student: false,
-    is_admin: false,
-};
 
 export default function CreateUserPage() {
     const { pagePadding } = useCustomStyles();
 
-    const memberlessUsers = useQuery(api.auth.getUsersWithoutMember);
-    const [formData, setFormData] = useState({ ...defaultMemberData });
+    const { formInputs, formData, clearForm } = useMemberForm();
 
     const createMember = useMutation(api.team_member.createMember);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        await createMember(formData);
-        setFormData({ ...defaultMemberData });
+        const { users, ...rest } = formData;
+        const user_ids = users.map((user) => user._id);
+        await createMember({ user_ids, ...rest });
+        clearForm();
     };
 
     return (
@@ -69,78 +50,7 @@ export default function CreateUserPage() {
                             gap: 2,
                         }}
                     >
-                        <InputContainer label="Display Name *">
-                            <TextField
-                                name="display_name"
-                                value={formData.display_name}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        display_name: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </InputContainer>
-                        <InputContainer label="User *">
-                            <Select
-                                name="user_id"
-                                value={formData.user_id}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        user_id: e.target.value as Id<"users">,
-                                    })
-                                }
-                            >
-                                {memberlessUsers?.map((user) => (
-                                    <MenuItem value={user._id}>
-                                        {user.email}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </InputContainer>
-                        <InputContainer label="NFC ID *">
-                            <TextField
-                                name="nfc_id"
-                                value={formData.nfc_id}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        nfc_id: e.target.value,
-                                    })
-                                }
-                                required
-                            />
-                        </InputContainer>
-                        <FormControlLabel
-                            label="Is Student"
-                            control={
-                                <Checkbox
-                                    checked={formData.is_student}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            is_student: e.target.checked,
-                                        })
-                                    }
-                                />
-                            }
-                        />
-                        <FormControlLabel
-                            label="Is Admin"
-                            control={
-                                <Checkbox
-                                    checked={formData.is_admin}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            is_admin: e.target.checked,
-                                        })
-                                    }
-                                />
-                            }
-                        />
+                        {formInputs}
                         <Button variant="contained" type="submit">
                             Create Member
                         </Button>
