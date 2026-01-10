@@ -79,7 +79,7 @@ export default function HomePage() {
     const [showDeactivatedUsers, setShowDeactivatedUsers] = useState(false);
     const [direction, setDirection] = useState<"asc" | "desc">("desc");
     const [orderBy, setOrderBy] = useState<keyof MemberType>(
-        "active" as keyof MemberType
+        "display_name" as keyof MemberType
     );
 
     const teamMembers = useQuery(api.team_member.list, { season_id });

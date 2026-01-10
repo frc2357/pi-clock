@@ -5,7 +5,6 @@ import { v } from "convex/values";
 export default defineSchema({
     ...authTables,
     team_member: defineTable({
-        user_id: v.optional(v.id("users")),
         display_name: v.string(),
         nfc_id: v.string(),
         is_student: v.boolean(),
