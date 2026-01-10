@@ -77,7 +77,7 @@ export default function HomePage() {
     const { selectedSeasonId: season_id } = useSeasonStore();
 
     const [showDeactivatedUsers, setShowDeactivatedUsers] = useState(false);
-    const [direction, setDirection] = useState<"asc" | "desc">("desc");
+    const [direction, setDirection] = useState<"asc" | "desc">("asc");
     const [orderBy, setOrderBy] = useState<keyof MemberType>(
         "display_name" as keyof MemberType
     );
