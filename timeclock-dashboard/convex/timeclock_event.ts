@@ -21,8 +21,8 @@ const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
 const roundToMinute = (timestamp?: number) => {
     if (!timestamp) return timestamp;
     const minutes = Math.floor(timestamp / MILLIS_PER_MINUTE);
-    return minutes * MILLIS_PER_MINUTE
-}
+    return minutes * MILLIS_PER_MINUTE;
+};
 
 export const createEvent = mutation({
     args: {
@@ -44,7 +44,9 @@ export const createEvent = mutation({
 export const clockOut = mutation({
     args: { event_id: v.id("timeclock_event"), clock_out: v.number() },
     handler: async (ctx, args) => {
-        await ctx.db.patch(args.event_id, { clock_out: roundToMinute(args.clock_out) });
+        await ctx.db.patch(args.event_id, {
+            clock_out: roundToMinute(args.clock_out),
+        });
     },
 });
 
@@ -130,8 +132,8 @@ export const list = query({
 export const updateEvent = mutation({
     args: {
         id: v.id("timeclock_event"),
-        clock_in: v.number(),
-        clock_out: v.number(),
+        clock_in: v.optional(v.number()),
+        clock_out: v.optional(v.number()),
     },
     handler: async (ctx, args) => {
         const { id, clock_in, clock_out } = args;

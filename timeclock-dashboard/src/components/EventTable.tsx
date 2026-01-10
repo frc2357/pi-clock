@@ -216,8 +216,8 @@ export default function EventTable({ events, member_id }: EventTableProps) {
     const processRowUpdate = async (newRow: GridRowModel) => {
         await updateEvent({
             id: newRow.id,
-            clock_in: newRow.clock_in.getTime() ?? null,
-            clock_out: newRow.clock_out.getTime() ?? null,
+            clock_in: newRow?.clock_in?.getTime(),
+            clock_out: newRow?.clock_out?.getTime(),
         });
 
         return newRow;
