@@ -1,35 +1,32 @@
-import useMemberForm from "@/hooks/useMemberForm";
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
-import { useMutation } from "convex/react";
-import { FormEvent } from "react";
+import useSeasonForm from "@/hooks/useSeasonForm";
+import useCustomStyles from "@/useCustomStyles";
 import { api } from "../../convex/_generated/api";
-import useCustomStyles from "../useCustomStyles";
+import { useMutation } from "convex/react";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { FormEvent } from "react";
 import { toast } from "sonner";
 
-export default function CreateMemberPage() {
+export default function CreateSeasonPage() {
     const { pagePadding } = useCustomStyles();
 
-    const { formInputs, formData, clearForm } = useMemberForm();
+    const { formInputs, formData } = useSeasonForm();
 
-    const createMember = useMutation(api.team_member.createMember);
+    const createSeason = useMutation(api.frc_season.createSeason);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         try {
-            const { users, ...rest } = formData;
-            const user_ids = users.map((user) => user._id);
-            await createMember({ user_ids, ...rest });
-            clearForm();
-            toast.success("Member created successfully");
+            await createSeason(formData);
+            toast.success("Season created successfully");
         } catch {
-            toast.error("Failed to create member");
+            toast.error("Failed to create season");
         }
     };
 
     return (
         <Box sx={{ ...pagePadding, height: "100%", width: "100%" }}>
             <Typography variant="h3" sx={{ margin: 1 }}>
-                Create Member
+                Create Season
             </Typography>
             <Box
                 component="form"
@@ -58,7 +55,7 @@ export default function CreateMemberPage() {
                     >
                         {formInputs}
                         <Button variant="contained" type="submit">
-                            Create Member
+                            Create Season
                         </Button>
                     </CardContent>
                 </Card>

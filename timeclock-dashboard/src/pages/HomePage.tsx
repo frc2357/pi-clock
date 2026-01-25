@@ -26,55 +26,10 @@ import { useSeasonStore } from "@/store/season";
 
 type MemberType = FunctionReturnType<typeof api.team_member.getMember>;
 
-const tableHeaders: {
-    id: string;
-    label: string;
-    align: TableCellProps["align"];
-    width: string;
-    render: (member: MemberType) => ReactNode;
-}[] = [
-    {
-        id: "display_name",
-        label: "Team Member",
-        align: "left",
-        width: "30%",
-        render: (member: MemberType) => member?.display_name,
-    },
-    {
-        id: "total_hours",
-        label: "Total Hours",
-        align: "right",
-        width: "15%",
-        render: (member: MemberType) => member?.total_hours?.toFixed(2),
-    },
-    {
-        id: "latest_clock_in",
-        label: "Last Clock In",
-        align: "right",
-        width: "30%",
-        render: (member: MemberType) =>
-            member?.latest_event?.clock_in
-                ? format(
-                      new Date(member.latest_event.clock_in),
-                      "MM/dd/yy HH:mm"
-                  )
-                : "Never",
-    },
-    {
-        id: "active",
-        label: "Status",
-        align: "right",
-        width: "25%",
-        render: (member: MemberType) => (
-            <MemberStatusChip active={member?.active || false} />
-        ),
-    },
-];
-
 export default function HomePage() {
     const { pagePadding, tableSize } = useCustomStyles();
 
-    const { selectedSeasonId: season_id } = useSeasonStore();
+    const { selectedSeasonId: season_id, expectedHours } = useSeasonStore();
 
     const [showDeactivatedUsers, setShowDeactivatedUsers] = useState(false);
     const [direction, setDirection] = useState<"asc" | "desc">("asc");
@@ -90,6 +45,72 @@ export default function HomePage() {
         setDirection(isAsc ? "asc" : "desc");
         setOrderBy(property);
     };
+
+    const tableHeaders: {
+        id: string;
+        label: string;
+        align: TableCellProps["align"];
+        width: string;
+        render: (member: MemberType) => ReactNode;
+    }[] = [
+        {
+            id: "display_name",
+            label: "Team Member",
+            align: "left",
+            width: "30%",
+            render: (member: MemberType) => member?.display_name,
+        },
+        {
+            id: "total_hours",
+            label: "Total Hours",
+            align: "right",
+            width: "15%",
+            render: (member: MemberType) => {
+                if (!expectedHours) {
+                    return member?.total_hours?.toFixed(2);
+                }
+                const ratio = (member?.total_hours ?? 0) / expectedHours;
+
+                let color;
+
+                if (ratio >= 0.95) {
+                    color = "success";
+                } else if (ratio >= 0.85) {
+                    color = "warning";
+                } else {
+                    color = "error";
+                }
+
+                return (
+                    <Typography color={color}>
+                        {member?.total_hours?.toFixed(2)}
+                    </Typography>
+                );
+            },
+        },
+        {
+            id: "latest_clock_in",
+            label: "Last Clock In",
+            align: "right",
+            width: "30%",
+            render: (member: MemberType) =>
+                member?.latest_event?.clock_in
+                    ? format(
+                          new Date(member.latest_event.clock_in),
+                          "MM/dd/yy HH:mm"
+                      )
+                    : "Never",
+        },
+        {
+            id: "active",
+            label: "Status",
+            align: "right",
+            width: "25%",
+            render: (member: MemberType) => (
+                <MemberStatusChip active={member?.active || false} />
+            ),
+        },
+    ];
 
     const sortedMembers = useMemo(() => {
         return (
