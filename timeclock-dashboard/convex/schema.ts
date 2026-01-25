@@ -2,9 +2,31 @@ import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const meeting_schedule_schema = v.array(
+    v.object({
+        weekday: v.union(
+            v.literal(0), // 0 = Sunday
+            v.literal(1),
+            v.literal(2),
+            v.literal(3),
+            v.literal(4),
+            v.literal(5),
+            v.literal(6)
+        ),
+        start: v.number(),
+        end: v.number(),
+        duration_hours: v.number(),
+    })
+);
+
+export const canceled_meetings_schema = v.array(
+    v.object({ date_canceled: v.number() })
+);
+
 export default defineSchema({
     ...authTables,
     team_member: defineTable({
+        user_id: v.optional(v.id("users")),
         display_name: v.string(),
         nfc_id: v.string(),
         is_student: v.boolean(),
@@ -27,6 +49,9 @@ export default defineSchema({
         name: v.string(),
         start_date: v.number(),
         end_date: v.number(),
+
+        meeting_schedule: v.optional(meeting_schedule_schema),
+        canceled_meetings: v.optional(canceled_meetings_schema),
     })
         .index("by_name", ["name"])
         .index("by_start", ["start_date"])

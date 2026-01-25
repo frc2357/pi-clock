@@ -12,7 +12,7 @@ import { useParams } from "react-router-dom";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import MemberEventTable from "../components/MemberEventTable";
-import MemberInfoForm from "../components/MemberInfoForm";
+import MemberEditForm from "../components/MemberEditForm";
 import useTriggerEvent from "../hooks/useTriggerEvent";
 import useCustomStyles from "../useCustomStyles";
 
@@ -96,7 +96,7 @@ export default function MemberPage() {
             </Box>
 
             <Grid container spacing={pagePadding.padding}>
-                <MemberInfoForm member={member} />
+                <MemberEditForm member={member} />
                 <MemberEventTable member_id={member._id} />
             </Grid>
         </Stack>

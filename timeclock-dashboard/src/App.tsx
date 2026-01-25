@@ -11,9 +11,23 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import LogoutPage from "./pages/LogoutPage";
 import MemberPage from "./pages/MemberPage";
+import EditSeasonPage from "./pages/EditSeasonPage";
+import CreateSeasonPage from "./pages/CreateSeasonPage";
+import { useSeasonStore } from "./store/season";
+import { useEffect } from "react";
 
 function App() {
     const loggedInMember = useQuery(api.team_member.getLoggedInMember, {});
+
+    const { selectedSeasonId, setExpectedHours } = useSeasonStore();
+
+    const expectedHours = useQuery(api.frc_season.getHoursSinceSeasonStart, {
+        season_id: selectedSeasonId,
+    });
+
+    useEffect(() => {
+        setExpectedHours(expectedHours);
+    }, [setExpectedHours, expectedHours]);
 
     return (
         <BrowserRouter>
@@ -56,13 +70,25 @@ function App() {
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route
-                                path="/create-member"
-                                element={<CreateMemberPage />}
-                            />
-                            <Route
                                 path="/member/:member_id"
                                 element={<MemberPage />}
                             />
+                            {loggedInMember?.is_admin && (
+                                <>
+                                    <Route
+                                        path="/create-member"
+                                        element={<CreateMemberPage />}
+                                    />
+                                    <Route
+                                        path="/create-season"
+                                        element={<CreateSeasonPage />}
+                                    />
+                                    <Route
+                                        path="/season/:season_id"
+                                        element={<EditSeasonPage />}
+                                    />
+                                </>
+                            )}
                         </Routes>
                     )}
                 </Authenticated>

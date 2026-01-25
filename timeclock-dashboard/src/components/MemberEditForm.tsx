@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
 import InputContainer from "./InputContainer";
 import MemberStatusChip from "./MemberStatusChip";
+import { useSeasonStore } from "@/store/season";
 
 export default function MemberEditForm({
     member,
@@ -36,6 +37,8 @@ export default function MemberEditForm({
     const toggleMemberActivation = useMutation(
         api.team_member.toggleMemberActivation
     );
+
+    const { expectedHours } = useSeasonStore();
 
     const { display_name, nfc_id, is_student, is_admin, users } = member || {};
     const memberData = member
@@ -181,7 +184,9 @@ export default function MemberEditForm({
                         </InputContainer>
                         <InputContainer label="Total Hours">
                             <Typography variant="h4" color="primary">
-                                {member.total_hours.toFixed(2)}
+                                {expectedHours
+                                    ? `${member.total_hours.toFixed(2)} / ${expectedHours.toFixed(2)}`
+                                    : member.total_hours.toFixed(2)}
                             </Typography>
                         </InputContainer>
                     </Stack>
