@@ -4,17 +4,36 @@ import { mutation, query, QueryCtx } from "./_generated/server";
 import { filterEventsBySeason } from "./utils";
 
 const MILLIS_PER_MINUTE = 1000 * 60;
+const MILLIS_PER_HOUR = 60 * 60 * 1000;
+const LONGEST_ALLOWED_SHIFT_HOURS = parseInt(
+    process.env.LONGEST_ALLOWED_SHIFT_HOURS!,
+    10
+);
 
-const enrichEvent = async (ctx: QueryCtx, event: Doc<"timeclock_event">) => {
+export const enrichEvent = async (
+    ctx: QueryCtx,
+    event: Doc<"timeclock_event">
+) => {
     const member = await ctx.db.get(event.member_id);
     const duration_hours =
         event.clock_out && event.clock_in
             ? (event.clock_out - event.clock_in) / 3600000.0
             : null;
+    let incomplete = false;
+
+    if (!event.clock_out) {
+        const today = new Date();
+        const clock_in = new Date(event.clock_in!);
+        const diffMS = today.valueOf() - clock_in.valueOf();
+        const diffHours = diffMS / MILLIS_PER_HOUR;
+        incomplete = diffHours > LONGEST_ALLOWED_SHIFT_HOURS;
+    }
     return {
         ...event,
         member,
         duration_hours,
+        incomplete,
+        short: duration_hours ? duration_hours < 1 : null,
     };
 };
 

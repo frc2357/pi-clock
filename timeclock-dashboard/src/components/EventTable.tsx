@@ -3,6 +3,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import CircleIcon from "@mui/icons-material/Circle";
 import {
     Box,
     Button,
@@ -178,6 +179,8 @@ export default function EventTable({ events, member_id }: EventTableProps) {
         clock_in: event.clock_in ? new Date(event.clock_in) : null,
         clock_out: event.clock_out ? new Date(event.clock_out) : null,
         duration: event.duration_hours,
+        incomplete: event.incomplete,
+        short: event.short,
 
         ...(!member_id ? { member: event.member?.display_name ?? "--" } : {}),
     }));
@@ -237,8 +240,32 @@ export default function EventTable({ events, member_id }: EventTableProps) {
                     clock_in: value,
                 };
             },
-            valueFormatter: (params) =>
-                params ? format(params, "MM/dd/yy HH:mm") : "--",
+            renderCell: (params) => {
+                const incomplete = params.row.incomplete;
+                const short = params.row.short;
+                const timeString = params.value
+                    ? format(params.value, "MM/dd/yy HH:mm")
+                    : "--";
+
+                return (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {incomplete && (
+                            <CircleIcon
+                                sx={{ fontSize: "10px", color: "error.main" }}
+                            />
+                        )}
+                        {short && !incomplete && (
+                            <CircleIcon
+                                sx={{ fontSize: "10px", color: "warning.main" }}
+                            />
+                        )}
+                        {!incomplete && !short && (
+                            <Box sx={{ width: "10px" }} />
+                        )}
+                        <span>{timeString}</span>
+                    </Box>
+                );
+            },
         },
         {
             field: "clockOut",

@@ -14,6 +14,7 @@ import {
     TableSortLabel,
     Typography,
 } from "@mui/material";
+import CircleIcon from "@mui/icons-material/Circle";
 import { useQuery } from "convex/react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
@@ -93,13 +94,45 @@ export default function HomePage() {
             label: "Last Clock In",
             align: "right",
             width: "30%",
-            render: (member: MemberType) =>
-                member?.latest_event?.clock_in
+            render: (member: MemberType) => {
+                const timeString = member?.latest_event?.clock_in
                     ? format(
                           new Date(member.latest_event.clock_in),
                           "MM/dd/yy HH:mm"
                       )
-                    : "Never",
+                    : "Never";
+
+                const hasIncomplete = member?.events.some(
+                    (event) => event?.incomplete
+                );
+                const hasShort = member?.events.some((event) => event?.short);
+
+                return (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            justifyContent: "flex-end",
+                        }}
+                    >
+                        {hasIncomplete && (
+                            <CircleIcon
+                                sx={{ fontSize: "10px", color: "error.main" }}
+                            />
+                        )}
+                        {!hasIncomplete && hasShort && (
+                            <CircleIcon
+                                sx={{ fontSize: "10px", color: "warning.main" }}
+                            />
+                        )}
+                        {!hasIncomplete && !hasShort && (
+                            <Box sx={{ width: "10px" }} />
+                        )}
+                        <span>{timeString}</span>
+                    </Box>
+                );
+            },
         },
         {
             id: "active",

@@ -5,6 +5,7 @@ import { mutation, query, QueryCtx } from "./_generated/server";
 import { isClockInOutdated } from "./utils";
 import { filterEventsBySeason } from "./utils";
 import { getAll } from "convex-helpers/server/relationships";
+import { enrichEvent } from "./timeclock_event";
 
 const enrichMember = async (
     ctx: QueryCtx,
@@ -21,6 +22,10 @@ const enrichMember = async (
 
     const filteredEvents = await filterEventsBySeason(ctx, events, season_id);
 
+    const enrichedEvents = await Promise.all(
+        filteredEvents.map(async (event) => enrichEvent(ctx, event))
+    );
+
     const umms = await ctx.db
         .query("user_member_map")
         .withIndex("by_member_id", (q) => q.eq("member_id", member._id))
@@ -36,7 +41,7 @@ const enrichMember = async (
         latest_event &&
         !latest_event.clock_out &&
         !isClockInOutdated(latest_event.clock_in!, Date.now());
-    const total_hours = filteredEvents.reduce((acc, event) => {
+    const total_hours = enrichedEvents.reduce((acc, event) => {
         if (event.clock_in && event.clock_out) {
             return acc + (event.clock_out - event.clock_in) / 3600000.0; // Convert ms to hours
         }
@@ -45,7 +50,7 @@ const enrichMember = async (
 
     return {
         ...member,
-        events: filteredEvents,
+        events: enrichedEvents,
         latest_clock_in: latest_event_filtered?.clock_in || null,
         latest_event: latest_event_filtered,
         active,
