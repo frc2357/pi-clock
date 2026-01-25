@@ -45,8 +45,8 @@ export const createSeason = mutation({
         name: v.string(),
         start_date: v.number(),
         end_date: v.number(),
-        meeting_schedule: v.optional(meeting_schedule_schema),
-        canceled_meetings: v.optional(canceled_meetings_schema),
+        meeting_schedule: meeting_schedule_schema,
+        canceled_meetings: canceled_meetings_schema,
     },
     handler: (ctx, args) => {
         return ctx.db.insert("frc_season", args);
@@ -59,8 +59,8 @@ export const updateSeason = mutation({
         name: v.optional(v.string()),
         start_date: v.optional(v.number()),
         end_date: v.optional(v.number()),
-        meeting_schedule: v.optional(meeting_schedule_schema),
-        canceled_meetings: v.optional(canceled_meetings_schema),
+        meeting_schedule: meeting_schedule_schema,
+        canceled_meetings: canceled_meetings_schema,
     },
     handler: (ctx, args) => {
         const { season_id, ...rest } = args;
@@ -76,8 +76,7 @@ export const getHoursSinceSeasonStart = query({
         if (!args.season_id) return undefined;
 
         const season = await ctx.db.get(args.season_id);
-        if (!season || !season.meeting_schedule || !season.canceled_meetings)
-            return undefined;
+        if (!season) return undefined;
 
         // Convert meeting_schedule array to object for faster lookup
         const schedule_map = Object.fromEntries(

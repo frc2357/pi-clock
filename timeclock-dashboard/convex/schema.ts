@@ -26,7 +26,6 @@ export const canceled_meetings_schema = v.array(
 export default defineSchema({
     ...authTables,
     team_member: defineTable({
-        user_id: v.optional(v.id("users")),
         display_name: v.string(),
         nfc_id: v.string(),
         is_student: v.boolean(),
@@ -50,8 +49,8 @@ export default defineSchema({
         start_date: v.number(),
         end_date: v.number(),
 
-        meeting_schedule: v.optional(meeting_schedule_schema),
-        canceled_meetings: v.optional(canceled_meetings_schema),
+        meeting_schedule: meeting_schedule_schema,
+        canceled_meetings: canceled_meetings_schema,
     })
         .index("by_name", ["name"])
         .index("by_start", ["start_date"])
