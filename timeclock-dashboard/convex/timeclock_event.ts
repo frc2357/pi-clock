@@ -33,7 +33,7 @@ export const enrichEvent = async (
         member,
         duration_hours,
         incomplete,
-        short: duration_hours ? duration_hours < 1 : null,
+        short: duration_hours ? duration_hours < (10/60) : null,
     };
 };
 
