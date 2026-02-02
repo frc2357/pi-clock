@@ -14,16 +14,22 @@ import MemberPage from "./pages/MemberPage";
 import EditSeasonPage from "./pages/EditSeasonPage";
 import CreateSeasonPage from "./pages/CreateSeasonPage";
 import { useSeasonStore } from "./store/season";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { calculateHoursSinceSeasonStart } from "./utils/calculateHoursSinceSeasonStart";
 
 function App() {
     const loggedInMember = useQuery(api.team_member.getLoggedInMember, {});
 
     const { selectedSeasonId, setExpectedHours } = useSeasonStore();
 
-    const expectedHours = useQuery(api.frc_season.getHoursSinceSeasonStart, {
+    const season = useQuery(api.frc_season.get, {
         season_id: selectedSeasonId,
     });
+
+    const expectedHours = useMemo(
+        () => calculateHoursSinceSeasonStart(season),
+        [season]
+    );
 
     useEffect(() => {
         setExpectedHours(expectedHours);
