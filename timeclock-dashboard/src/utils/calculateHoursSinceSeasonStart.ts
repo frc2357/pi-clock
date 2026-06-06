@@ -31,7 +31,7 @@ export const calculateHoursSinceSeasonStart = (
     // Get day of week of Jan 1st so we can use math to determine dow
     // instead of converting to Date objects
     // prettier-ignore
-    const first_dow = (((season_start.getDay() - (season_start.getDate() - 1)) % 7) + 7) % 7;
+    const first_dow = (((season_start.getDay() - (getDayOfYear(season_start) - 1)) % 7) + 7) % 7;
 
     // Loop from season_start_day (inclusive) to today_day (exclusive)
     // and count the number of hours of scheduled meetings per day
