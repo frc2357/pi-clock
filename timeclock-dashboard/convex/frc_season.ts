@@ -21,9 +21,12 @@ export const currentSeason = query({
             api.frc_season.list
         );
 
-        return seasons?.find(({ start_date, end_date }) => {
-            return today >= start_date && today < end_date;
-        });
+        return (
+            seasons?.find(({ start_date, end_date }) => {
+                return today >= start_date && today < end_date;
+            }) ??
+            seasons.sort((a, b) => a.start_date - b.start_date).reverse()[0]
+        );
     },
 });
 
